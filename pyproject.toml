@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "clir"
+version = "0.1.0"
+description = "A clear and fast way to store and recover your commands"
+authors = ["Elkin Aguas <elkinaguas@gmail.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+rich = "^13.5.2"
+click = "^8.1.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+clir = "clir.cli:cli"
+init_clir = 'clir.cli:init'
