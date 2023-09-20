@@ -67,9 +67,3 @@ def run(tag: str = "", grep: str = ""):
     uid = functions.choose_command(commands=commands)
     functions.run_command(uid = uid)
 
-@cli.command(help="Searche for commands")
-@click.option('-t', '--tag', help="Search by tag")
-@click.option('-g', '--grep', help="Search by grep")
-def search(tag: str = "", grep: str = ""):
-    filtered_commands = functions.search_command(tag=tag, grep=grep)
-    functions.command_table(commands=filtered_commands)
