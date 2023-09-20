@@ -47,8 +47,13 @@ def rm(tag: str = "", grep: str = ""):
     functions.remove_command(uid = uid)
 
 @cli.command(help="List commands")
-def list():
-    commands = functions.get_commands()
+@click.option('-t', '--tag', help="Search by tag")
+@click.option('-g', '--grep', help="Search by grep")
+def ls(tag: str = "", grep: str = ""):
+    if tag or grep:
+        commands = functions.search_command(tag=tag, grep=grep)
+    else:
+        commands = functions.get_commands()
     functions.command_table(commands=commands)
 
 @cli.command(help="Run command")
