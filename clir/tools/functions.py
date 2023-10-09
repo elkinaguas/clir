@@ -49,7 +49,10 @@ def command_table(commands: dict = {}):
     table.add_column("Tag", style="green")
     
     for indx, command in enumerate(current_commands):
-        table.add_row(str(indx+1), command, current_commands[command]["description"], current_commands[command]["tag"])
+        n = 50
+        description = current_commands[command]["description"]
+        split_description = "\n".join([description[i:i+n] for i in range(0, len(description), n)])
+        table.add_row(str(indx+1), command, split_description, current_commands[command]["tag"])
 
     console = Console()
     console.print(table)
