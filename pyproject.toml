@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clir"
-version = "0.1.3"
+version = "0.1.5"
 description = "A clear and fast way to store and recover your commands"
 authors = ["Elkin Aguas <elkinaguas@gmail.com>"]
 license = "MIT License"
