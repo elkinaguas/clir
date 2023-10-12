@@ -1,7 +1,7 @@
 import click
 import os
 from rich.prompt import Prompt
-from clir.tools import functions
+from tools import functions
 
 @click.group()
 def cli():
