@@ -15,6 +15,7 @@ repository = "https://github.com/elkinaguas/clir"
 python = "^3.7"
 rich = "^13.5.2"
 click = "^8.1.7"
+rich-click = "^1.7.0"
 
 [build-system]
 requires = ["poetry-core"]

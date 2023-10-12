@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 import os
 from rich.prompt import Prompt
 from tools import functions
