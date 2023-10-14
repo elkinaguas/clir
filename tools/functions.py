@@ -69,6 +69,7 @@ def command_table(commands: dict = {}):
 
     console = Console()
     console.print(table)
+    print(f"Showing {str(len(current_commands))} commands")
 
 def save_commands(command: str = "", desc: str = "", tag: str = ""):
     current_commands = get_commands()
