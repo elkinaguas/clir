@@ -39,7 +39,8 @@ def choose_command(commands: dict = {}):
 
 
 def command_table(commands: dict = {}):
-    current_commands = commands
+    # Current commands sorted by tag
+    current_commands = dict(sorted(commands.items(), key=lambda item: item[1]["tag"]))
     
     table = Table(show_lines=True, box=box.MINIMAL)
 
