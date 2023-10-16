@@ -42,7 +42,7 @@ def command_table(commands: dict = {}):
     # Current commands sorted by tag
     current_commands = dict(sorted(commands.items(), key=lambda item: item[1]["tag"]))
     
-    table = Table(show_lines=True, box=box.MINIMAL)
+    table = Table(show_lines=True, box=box.ROUNDED, style="#7D7C7C")
 
     table.add_column("ID", style="cyan", no_wrap=True)
     table.add_column("Command", style="cyan", no_wrap=True)
