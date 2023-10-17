@@ -9,7 +9,7 @@ def cli():
 
 #--------------------------------------- CLI commands  -------------------------------------------------------
 
-@cli.command(help="Clir initial configuration 🚀")
+@cli.command(help="Clir initial configuration 🛠️")
 def init():
     dir_path = os.path.join(os.path.expanduser('~'), '.clir')
     os.makedirs(dir_path, exist_ok=True)
@@ -56,7 +56,7 @@ def ls(tag: str = "", grep: str = ""):
         commands = functions.get_commands()
     functions.command_table(commands=commands)
 
-@cli.command(help="Run command ✨")
+@cli.command(help="Run command 🚀")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def run(tag: str = "", grep: str = ""):
