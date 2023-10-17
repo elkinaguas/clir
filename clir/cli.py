@@ -9,7 +9,7 @@ def cli():
 
 #--------------------------------------- CLI commands  -------------------------------------------------------
 
-@cli.command(help="Clir initial configuration")
+@cli.command(help="Clir initial configuration 🚀")
 def init():
     dir_path = os.path.join(os.path.expanduser('~'), '.clir')
     os.makedirs(dir_path, exist_ok=True)
@@ -27,7 +27,7 @@ def init():
     else:
         print(f'A clir environment already exists in "{dir_path}".')
 
-@cli.command(help="Save new command")
+@cli.command(help="Save new command 💾")
 def new():
     command = Prompt.ask("Command")
     description = Prompt.ask("Description")
@@ -35,7 +35,7 @@ def new():
 
     functions.save_commands(command = command, desc = description, tag = tag)
 
-@cli.command(help="Remove command")
+@cli.command(help="Remove command 👋")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def rm(tag: str = "", grep: str = ""):
@@ -46,7 +46,7 @@ def rm(tag: str = "", grep: str = ""):
     uid = functions.choose_command(commands=commands)
     functions.remove_command(uid = uid)
 
-@cli.command(help="List commands")
+@cli.command(help="List commands 📃")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def ls(tag: str = "", grep: str = ""):
@@ -56,7 +56,7 @@ def ls(tag: str = "", grep: str = ""):
         commands = functions.get_commands()
     functions.command_table(commands=commands)
 
-@cli.command(help="Run command")
+@cli.command(help="Run command ✨")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def run(tag: str = "", grep: str = ""):
