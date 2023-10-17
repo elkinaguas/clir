@@ -21,8 +21,8 @@ def get_commands():
     return current_commands
 
 def choose_command(commands: dict = {}):
-    command_table(commands=commands)
     sorted_commands = dict(sorted(commands.items(), key=lambda item: item[1]["tag"]))
+    command_table(commands=sorted_commands)
     command_id = Prompt.ask("Enter command ID")
 
     try:
@@ -40,9 +40,6 @@ def choose_command(commands: dict = {}):
 
 
 def command_table(commands: dict = {}):
-    # Current commands sorted by tag
-    sorted_commands = dict(sorted(commands.items(), key=lambda item: item[1]["tag"]))
-    
     table = Table(show_lines=True, box=box.ROUNDED, style="#7D7C7C")
 
     table.add_column("ID", style="cyan", no_wrap=True)
@@ -50,10 +47,10 @@ def command_table(commands: dict = {}):
     table.add_column("Description", style="magenta")
     table.add_column("Tag", style="green")
     
-    for indx, command in enumerate(sorted_commands):
+    for indx, command in enumerate(commands):
         desc_len = 50
         command_len = 50
-        description = sorted_commands[command]["description"]
+        description = commands[command]["description"]
         split_description = "\n".join([description[i:i+desc_len] for i in range(0, len(description), desc_len)])
         split_command = []
         local_command = ""
@@ -67,11 +64,11 @@ def command_table(commands: dict = {}):
         split_command.append(local_command)
         
         display_command = " \ \n".join(split_command)
-        table.add_row(str(indx+1), display_command, split_description, sorted_commands[command]["tag"])
+        table.add_row(str(indx+1), display_command, split_description, commands[command]["tag"])
 
     console = Console()
     console.print(table)
-    print(f"Showing {str(len(sorted_commands))} commands")
+    print(f"Showing {str(len(commands))} commands")
 
 def save_commands(command: str = "", desc: str = "", tag: str = ""):
     current_commands = get_commands()
