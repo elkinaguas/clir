@@ -42,10 +42,10 @@ def choose_command(commands: dict = {}):
 def command_table(commands: dict = {}):
     table = Table(show_lines=True, box=box.ROUNDED, style="#7D7C7C")
 
-    table.add_column("ID", style="cyan", no_wrap=True)
-    table.add_column("Command", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-    table.add_column("Tag", style="green")
+    table.add_column("ID 📇", style="cyan", no_wrap=True)
+    table.add_column("Command 💻", style="cyan", no_wrap=True)
+    table.add_column("Description 📕", style="magenta")
+    table.add_column("Tag 🏷️", style="green")
     
     for indx, command in enumerate(commands):
         desc_len = 50
