@@ -43,9 +43,9 @@ def command_table(commands: dict = {}):
     table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
 
     table.add_column("ID 📇", style="white bold", no_wrap=True)
-    table.add_column("Command 💻", style="green", no_wrap=True)
-    table.add_column("Description 📕", style="magenta")
-    table.add_column("Tag 🏷️", style="cyan")
+    table.add_column("Command 💻", style="green bold", no_wrap=True)
+    table.add_column("Description 📕", style="magenta bold")
+    table.add_column("Tag 🏷️", style="cyan bold")
     
     for indx, command in enumerate(commands):
         desc_len = 50
