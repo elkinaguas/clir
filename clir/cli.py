@@ -1,7 +1,8 @@
 import rich_click as click
 import os
 from rich.prompt import Prompt
-from clir.tools import functions
+from clir.utils.objects import Command
+from clir.utils.objects import CommandTable
 
 @click.group()
 def cli():
@@ -33,37 +34,27 @@ def new():
     description = Prompt.ask("Description")
     tag = Prompt.ask("Tag")
 
-    functions.save_commands(command = command, desc = description, tag = tag)
+    new_command = Command(command = command, description = description, tag = tag)
+    new_command.save_command()
 
 @cli.command(help="Remove command 👋")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def rm(tag: str = "", grep: str = ""):
-    if tag or grep:
-        commands = functions.search_command(tag=tag, grep=grep)
-    else:
-        commands = functions.get_commands()
-    uid = functions.choose_command(commands=commands)
-    functions.remove_command(uid = uid)
+    table = CommandTable(tag=tag, grep=grep)
+    table.remove_command()
 
 @cli.command(help="List commands 📃")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def ls(tag: str = "", grep: str = ""):
-    if tag or grep:
-        commands = functions.search_command(tag=tag, grep=grep)
-    else:
-        commands = functions.get_commands()
-    functions.command_table(commands=commands)
+    table = CommandTable(tag=tag, grep=grep)
+    table.show_table()
 
 @cli.command(help="Run command 🚀")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def run(tag: str = "", grep: str = ""):
-    if tag or grep:
-        commands = functions.search_command(tag=tag, grep=grep)
-    else:
-        commands = functions.get_commands()
-    uid = functions.choose_command(commands=commands)
-    functions.run_command(uid = uid)
+    table = CommandTable(tag=tag, grep=grep)
+    table.run_command()
 
