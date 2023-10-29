@@ -138,8 +138,6 @@ class CommandTable:
         
         return ""
 
-
-
 def _filter_by_tag(commands: dict = {}, tag: str = ""):
     if commands:
         current_commands = commands
