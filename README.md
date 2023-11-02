@@ -1,4 +1,6 @@
 # clir
+[![PyPI](https://img.shields.io/pypi/v/clir)](https://github.com/elkinaguas/clir/releases) ![PyPI - Downloads](https://img.shields.io/pypi/dm/clir) ![Total Download](https://static.pepy.tech/badge/clir)
+
 Clir provides a clear and fast way to store and recover your commands.
 
 ## Installation
