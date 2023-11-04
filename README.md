@@ -20,3 +20,10 @@ See all the obption available with
 ```bash
 clir --help
 ```
+![clir --help](/docs/img/clir_help.png)
+
+List your saved commands:
+```bash
+clir ls
+```
+![clir ls](/docs/img/clir_ls.png)
