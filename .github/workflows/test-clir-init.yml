@@ -22,7 +22,7 @@ jobs:
           pip install poetry
       - name: Install clir using Poetry
         run: |
-          poetry install
+          poetry install ; poetry build
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov
