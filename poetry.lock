@@ -116,6 +116,26 @@ typing-extensions = {version = ">=4.0.0,<5.0", markers = "python_version < \"3.9
 jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
+name = "rich-click"
+version = "1.7.1"
+description = "Format click help output nicely with rich"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "rich-click-1.7.1.tar.gz", hash = "sha256:660c8ea345343f47c5de88f62afa34a19d9f4c7accdd9c6e39dc17eece6affcd"},
+    {file = "rich_click-1.7.1-py3-none-any.whl", hash = "sha256:c37d19af85c86b9a256c18e9d23637ae89478300ec8dc5e220c6ca213675f2f9"},
+]
+
+[package.dependencies]
+click = ">=7"
+importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
+rich = ">=10.7.0"
+typing-extensions = "*"
+
+[package.extras]
+dev = ["flake8", "flake8-docstrings", "mypy", "packaging", "pre-commit", "pytest", "pytest-cov", "types-setuptools"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.7.1"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -144,4 +164,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "b58c309c5b36fb222672604ccdee62fc1e1a69aff32eda85ce6dabedafc228e3"
+content-hash = "3b3e9c2206575a8f9f1e1e3173b22d1d0aeb6e0f838179ab878f19fc16d1a92a"
