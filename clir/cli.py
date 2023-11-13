@@ -58,3 +58,9 @@ def run(tag: str = "", grep: str = ""):
     table = CommandTable(tag=tag, grep=grep)
     table.run_command()
 
+@cli.command(help="Copy command to clipboard 📋")
+@click.option('-t', '--tag', help="Search by tag")
+@click.option('-g', '--grep', help="Search by grep")
+def cp(tag: str = "", grep: str = ""):
+    table = CommandTable(tag=tag, grep=grep)
+    table.copy_command()

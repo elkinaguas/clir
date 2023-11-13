@@ -2,6 +2,8 @@ import os
 import re
 import json
 import uuid
+import platform
+import subprocess
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -99,6 +101,35 @@ class CommandTable:
         if uid:
             print(f'Running command: {command}')
             os.system(command)
+    
+    def copy_command(self):
+        current_commands = self.commands
+
+        uid = self.get_command_uid()
+        
+        command = ""
+        for c in current_commands:
+            if current_commands[c]["uid"] == uid:
+                command = c
+        
+        if uid:
+            print(f'Copying command: {command}')
+            if platform.system() == "Darwin":
+                # Verify that pbcopy is installed
+                if _verify_installation(package = "pbcopy"):
+                    os.system(f'echo -n "{command}" | pbcopy')
+                else:
+                    print("pbcopy is not installed, this command needs pbcopy to work properly")
+                    return
+            elif platform.system() == "Linux":
+                # Verify that xclip is installed
+                if _verify_installation(package = "xclip"):
+                    os.system(f'echo -n "{command}" | xclip -selection clipboard')
+                else:
+                    print("xclip is not installed, this command needs xclip to work properly")
+                    return
+            else:
+                print("OS not supported")
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
@@ -137,6 +168,22 @@ class CommandTable:
             print("ID must be an integer")
         
         return ""
+
+def _verify_installation(package: str = ""):
+    if package == "xclip":
+        try:
+            subprocess.run(["xclip", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except:
+            return False
+    if package == "pbcopy":
+        try:
+            subprocess.run(["pbcopy", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except:
+            return False
+    
+    return "No package specified"
 
 def _filter_by_tag(commands: dict = {}, tag: str = ""):
     if commands:
