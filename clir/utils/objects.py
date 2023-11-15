@@ -136,6 +136,7 @@ class CommandTable:
         json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
 
         uid = self.get_command_uid()
+        all_commands = _get_commands()
         
         del_command = ""
         for command in self.commands:
@@ -143,11 +144,11 @@ class CommandTable:
                 del_command = command
 
         if uid:
-            self.commands.pop(str(del_command))
+            all_commands.pop(str(del_command))
 
             # Write updated data to JSON file
             with open(json_file_path, 'w') as json_file:
-                json.dump(self.commands, json_file)
+                json.dump(all_commands, json_file)
 
             print(f'Command removed successfuly')
 
