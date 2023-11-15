@@ -1,5 +1,6 @@
 import rich_click as click
 import os
+import subprocess
 from rich.prompt import Prompt
 from clir.utils.objects import Command
 from clir.utils.objects import CommandTable
@@ -8,6 +9,11 @@ from clir.utils.objects import CommandTable
 def cli():
     pass
 
+def check_config():
+    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
+    file_path = os.path.join(dir_path, 'commands.json')
+
+    return os.path.exists(file_path)
 #--------------------------------------- CLI commands  -------------------------------------------------------
 
 @cli.command(help="Clir initial configuration 🛠️")
@@ -30,6 +36,14 @@ def init():
 
 @cli.command(help="Save new command 💾")
 def new():
+    if not check_config():
+        print("Initial configuration is not set. Executing 'clir init'...")
+        subprocess.run(["clir", "init"])
+
+    # Check again after executing 'clir init'
+    if not check_config():
+        print("Could not set the initial configuration. Unable to add the new command.")
+        return
     command = Prompt.ask("Command")
     description = Prompt.ask("Description")
     tag = Prompt.ask("Tag")
