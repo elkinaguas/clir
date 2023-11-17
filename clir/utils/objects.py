@@ -4,6 +4,7 @@ import json
 import uuid
 import platform
 import subprocess
+import pyperclip
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -103,6 +104,11 @@ class CommandTable:
             os.system(command)
     
     def copy_command(self):
+        
+        def to_clippboard(command):
+            pyperclip.copy(command)
+
+
         current_commands = self.commands
 
         uid = self.get_command_uid()
@@ -114,7 +120,9 @@ class CommandTable:
         
         if uid:
             print(f'Copying command: {command}')
-            if platform.system() == "Darwin":
+
+            to_clippboard(command)
+            '''if platform.system() == "Darwin":
                 # Verify that pbcopy is installed
                 if _verify_installation(package = "pbcopy"):
                     os.system(f'echo -n "{command}" | pbcopy')
@@ -122,6 +130,8 @@ class CommandTable:
                     print("pbcopy is not installed, this command needs pbcopy to work properly")
                     return
             elif platform.system() == "Linux":
+                
+                
                 # Verify that xclip is installed
                 if _verify_installation(package = "xclip"):
                     os.system(f'echo -n "{command}" | xclip -selection clipboard')
@@ -130,6 +140,7 @@ class CommandTable:
                     return
             else:
                 print("OS not supported")
+            '''
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
