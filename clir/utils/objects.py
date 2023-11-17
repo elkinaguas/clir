@@ -122,6 +122,7 @@ class CommandTable:
             print(f'Copying command: {command}')
 
             to_clippboard(command)
+            
             '''if platform.system() == "Darwin":
                 # Verify that pbcopy is installed
                 if _verify_installation(package = "pbcopy"):
