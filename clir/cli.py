@@ -78,3 +78,9 @@ def run(tag: str = "", grep: str = ""):
 def cp(tag: str = "", grep: str = ""):
     table = CommandTable(tag=tag, grep=grep)
     table.copy_command()
+
+@cli.command(help="Show tags 🏷️")
+@click.option('-g', '--grep', help="Search by grep")
+def tags(grep: str = ""):
+    table = CommandTable(grep=grep)
+    table.show_tags()

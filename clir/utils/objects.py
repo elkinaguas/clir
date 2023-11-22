@@ -130,6 +130,26 @@ class CommandTable:
                     return
             else:
                 print("OS not supported")
+    
+    def show_tags(self):
+        current_commands = self.commands
+
+        tags = []
+        for command in current_commands:
+            tags.append(current_commands[command]["tag"])
+        
+        tags = list(dict.fromkeys(tags))
+
+        table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
+        table.add_column("Tags 🏷️", style="cyan bold")
+        
+        for tag in tags:
+            table.add_row(tag)
+
+        console = Console()
+        console.print(table)
+        print(f"Showing {str(len(tags))} tags")
+    
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
