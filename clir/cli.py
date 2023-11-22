@@ -35,9 +35,9 @@ def init():
         print(f'A clir environment already exists in "{dir_path}".')
 
 @cli.command(help="Save new command 💾")
-@click.option('-c', '--command', default="", help="Command to be saved")
-@click.option('-d', '--description', default="", help="Description of the command")
-@click.option('-t', '--tag', default="", help="Tag to be associated with the command")
+@click.option('-c', '--command', help="Command to be saved", prompt=True)
+@click.option('-d', '--description', help="Description of the command", prompt=True)
+@click.option('-t', '--tag', help="Tag to be associated with the command", prompt=True)
 def new(command, description, tag):
     if not check_config():
         print("Initial configuration is not set. Executing 'clir init'...")
@@ -48,13 +48,6 @@ def new(command, description, tag):
         print("Could not set the initial configuration. Unable to add the new command.")
         return
     
-    if command == "":
-        command = Prompt.ask("Command")
-    if description == "":
-        description = Prompt.ask("Description")
-    if tag == "":
-        tag = Prompt.ask("Tag")
-
     new_command = Command(command = command, description = description, tag = tag)
     new_command.save_command()
 
