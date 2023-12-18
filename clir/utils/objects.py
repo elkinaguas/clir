@@ -98,6 +98,7 @@ class CommandTable:
             if current_commands[c]["uid"] == uid:
                 command = c
         
+        command = _replace_arguments(command)
         if uid:
             print(f'Running command: {command}')
             os.system(command)
@@ -254,3 +255,19 @@ def _get_commands(tag: str = "", grep: str = ""):
     sorted_commands = dict(sorted(current_commands.items(), key=lambda item: item[1]["tag"]))
 
     return sorted_commands
+
+def _get_user_input(arg):
+    return input(f"Enter value for '{arg}': ")
+
+def _replace_arguments(command):
+    # Use regex to find all arguments with underscores
+    matches = re.findall(r'_\w+', command)
+    
+    # Prompt the user for values for each argument
+    replacements = {arg: _get_user_input(arg) for arg in matches}
+    
+    # Replace arguments in the command
+    for arg, value in replacements.items():
+        command = command.replace(arg, value)
+    
+    return command
