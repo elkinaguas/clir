@@ -262,12 +262,20 @@ def _get_user_input(arg):
 def _replace_arguments(command):
     # Use regex to find all arguments with underscores
     matches = re.findall(r'_\w+', command)
+
+    print(f"Found {matches} arguments")
     
     # Prompt the user for values for each argument
     replacements = {arg: _get_user_input(arg) for arg in matches}
+
+    print(f"Replacing arguments with values: {replacements}")
     
+    command_list = command.split(" ")
+
     # Replace arguments in the command
     for arg, value in replacements.items():
-        command = command.replace(arg, value)
+        for indx,term in enumerate(command_list):
+            if arg == term:
+                command_list[indx] = value
     
-    return command
+    return " ".join(command_list)
