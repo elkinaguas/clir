@@ -5,6 +5,7 @@ import uuid
 import platform
 import subprocess
 from rich import box
+from rich import print
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
@@ -99,8 +100,8 @@ class CommandTable:
                 command = c
         
         command = _replace_arguments(command)
-        if uid:
-            print(f'Running command: {command}')
+        if uid and command:
+            print(f'[bold green]Running command:[/bold green] {command}')
             os.system(command)
     
     def copy_command(self):
@@ -263,13 +264,15 @@ def _replace_arguments(command):
     # Use regex to find all arguments with underscores
     matches = re.findall(r'_\w+', command)
 
-    print(f"Found {matches} arguments")
+    # Check that all arguments are unique
+    if len(matches) != len(set(matches)):
+        print("[bold red]Make sure that all arguments are unique[/bold red]")
+        return None
     
     # Prompt the user for values for each argument
     replacements = {arg: _get_user_input(arg) for arg in matches}
-
-    print(f"Replacing arguments with values: {replacements}")
     
+    # Split the command into a list
     command_list = command.split(" ")
 
     # Replace arguments in the command
