@@ -2,8 +2,8 @@ import rich_click as click
 import os
 import subprocess
 from rich.prompt import Prompt
-from clir.utils.objects import Command
-from clir.utils.objects import CommandTable
+from clir.modules import Command
+from clir.modules import CommandTable
 
 @click.group()
 def cli():
