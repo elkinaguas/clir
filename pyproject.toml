@@ -16,6 +16,7 @@ python = "^3.7"
 rich = "^13.5.2"
 click = "^8.1.7"
 rich-click = "^1.7.0"
+textual = "^0.47.1"
 
 [build-system]
 requires = ["poetry-core"]
