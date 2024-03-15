@@ -87,9 +87,3 @@ def cp(tag: str = "", grep: str = ""):
 def tags(grep: str = ""):
     table = CommandTable(grep=grep)
     table.show_tags()
-
-@cli.command(help="Back up commands 🗄")
-@click.option('-n', '--now', is_flag=True, help="Backup commands right away")
-def backup(now):
-    if now:
-        print("Do backup now")
