@@ -14,6 +14,7 @@ def check_config():
     file_path = os.path.join(dir_path, 'commands.json')
 
     return os.path.exists(file_path)
+
 #--------------------------------------- CLI commands  -------------------------------------------------------
 
 @cli.command(help="Clir initial configuration 🛠️")
