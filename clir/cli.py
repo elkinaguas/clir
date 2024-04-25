@@ -2,8 +2,8 @@ import rich_click as click
 import os
 import subprocess
 from rich.prompt import Prompt
-from clir.utils.objects import Command
-from clir.utils.objects import CommandTable
+from clir.command import Command
+from clir.command import CommandTable
 
 @click.group()
 def cli():
@@ -23,17 +23,19 @@ def init():
     os.makedirs(dir_path, exist_ok=True)
     
     # Define the file path and name
-    file_path = os.path.join(dir_path, 'commands.json')
+    files = ['commands.json', 'credentials.json']
 
     # Check if the file already exists
-    if not os.path.exists(file_path):
-        # Create the file
-        with open(file_path, 'w') as file:
-            file.write('{}')
+    for file in files:
+        file_path = os.path.join(dir_path, file)
+        if not os.path.exists(file_path):
+            # Create the file
+            with open(file_path, 'w') as file_object:
+                file_object.write('{}')
 
-        print(f'File "{file_path}" created successfully.')
-    else:
-        print(f'A clir environment already exists in "{dir_path}".')
+            print(f'File "{file_path}" created successfully.')
+        else:
+            print(f'A clir environment already exists in "{dir_path}".')
 
 @cli.command(help="Save new command 💾")
 @click.option('-c', '--command', help="Command to be saved", prompt=True)
