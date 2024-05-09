@@ -102,7 +102,7 @@ class CommandTable:
         command = _replace_arguments(command)
         if uid and command:
             print(f'[bold green]Running command:[/bold green] {command}')
-            os.system(command)
+            subprocess.Popen(['bash', '-ic', 'set -o history; history -s "$1"', '_', command])
     
     def copy_command(self):
         current_commands = self.commands
