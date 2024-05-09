@@ -9,6 +9,8 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
+from clir.utils.system import verify_xclip_installation
+from clir.utils.core import get_commands, replace_arguments
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -24,7 +26,7 @@ class Command:
         return f"{self.command} {self.description} {self.tag}"
 
     def save_command(self):
-        current_commands = _get_commands()
+        current_commands = get_commands()
 
         command = self.command
         desc = self.description
@@ -46,7 +48,7 @@ class Command:
 #Create class Table
 class CommandTable:
     def __init__(self, tag: str = "", grep: str = ""):
-        self.commands = _get_commands(tag = tag, grep = grep)
+        self.commands = get_commands(tag = tag, grep = grep)
         self.tag = tag
         self.grep = grep
 
@@ -99,7 +101,7 @@ class CommandTable:
             if current_commands[c]["uid"] == uid:
                 command = c
         
-        command = _replace_arguments(command)
+        command = replace_arguments(command)
         if uid and command:
             print(f'[bold green]Running command:[/bold green] {command}')
             subprocess.Popen(['bash', '-ic', 'set -o history; history -s "$1"', '_', command])
@@ -118,14 +120,14 @@ class CommandTable:
             print(f'Copying command: {command}')
             if platform.system() == "Darwin":
                 # Verify that pbcopy is installed
-                if _verify_installation(package = "pbcopy"):
+                if verify_xclip_installation(package = "pbcopy"):
                     os.system(f'echo -n "{command}" | pbcopy')
                 else:
                     print("pbcopy is not installed, this command needs pbcopy to work properly")
                     return
             elif platform.system() == "Linux":
                 # Verify that xclip is installed
-                if _verify_installation(package = "xclip"):
+                if verify_xclip_installation(package = "xclip"):
                     os.system(f'echo -n "{command}" | xclip -selection clipboard')
                 else:
                     print("xclip is not installed, this command needs xclip to work properly")
@@ -158,7 +160,7 @@ class CommandTable:
         json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
 
         uid = self.get_command_uid()
-        all_commands = _get_commands()
+        all_commands = get_commands()
         
         del_command = ""
         for command in self.commands:
@@ -191,94 +193,3 @@ class CommandTable:
             print("ID must be an integer")
         
         return ""
-
-def _verify_installation(package: str = ""):
-    if package == "xclip":
-        try:
-            subprocess.run(["xclip", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return True
-        except:
-            return False
-    if package == "pbcopy":
-        try:
-            subprocess.run(["pbcopy", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return True
-        except:
-            return False
-    
-    return "No package specified"
-
-def _filter_by_tag(commands: dict = {}, tag: str = ""):
-    if commands:
-        current_commands = commands
-    else:
-        current_commands = _get_commands()
-
-    tag_commands = {}
-    for command in current_commands:
-        if current_commands[command]["tag"] == tag:
-            tag_commands[command] = current_commands[command]
-
-    return tag_commands
-
-def _filter_by_grep(commands: dict = {}, grep: str = ""):
-    if commands:
-        current_commands = commands
-    else:
-        current_commands = _get_commands()
-
-    grep_commands = {}
-    pattern = grep
-    for command in current_commands:
-        text = command + " " + current_commands[command]["description"]# + " " + current_commands[command]["tag"]
-        match = re.findall(pattern, text, re.IGNORECASE)
-        if match:
-            grep_commands[command] = current_commands[command]
-
-    return grep_commands
-
-# Create a function that returns all commands
-def _get_commands(tag: str = "", grep: str = ""):
-    current_commands = ""
-    json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
-
-    try:
-        with open(json_file_path, 'r') as json_file:
-            current_commands =  json.load(json_file)
-    except FileNotFoundError:
-        return []
-    
-    if tag:
-        current_commands = _filter_by_tag(commands=current_commands, tag=tag)
-    if grep:
-        current_commands = _filter_by_grep(commands=current_commands, grep=grep)
-    
-    sorted_commands = dict(sorted(current_commands.items(), key=lambda item: item[1]["tag"]))
-
-    return sorted_commands
-
-def _get_user_input(arg):
-    return input(f"Enter value for '{arg}': ")
-
-def _replace_arguments(command):
-    # Use regex to find all arguments with underscores
-    matches = re.findall(r'_\w+', command)
-
-    # Check that all arguments are unique
-    if len(matches) != len(set(matches)):
-        print("[bold red]Make sure that all arguments are unique[/bold red]")
-        return None
-    
-    # Prompt the user for values for each argument
-    replacements = {arg: _get_user_input(arg) for arg in matches}
-    
-    # Split the command into a list
-    command_list = command.split(" ")
-
-    # Replace arguments in the command
-    for arg, value in replacements.items():
-        for indx,term in enumerate(command_list):
-            if arg == term:
-                command_list[indx] = value
-    
-    return " ".join(command_list)
