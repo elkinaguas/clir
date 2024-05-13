@@ -37,7 +37,7 @@ def init():
         else:
             print(f'A clir environment already exists in "{dir_path}".')
 
-@cli.command(help="Save new command 💾")
+@cli.command(help="Save new commands 💾")
 @click.option('-c', '--command', help="Command to be saved", prompt=True)
 @click.option('-d', '--description', help="Description of the command", prompt=True)
 @click.option('-t', '--tag', help="Tag to be associated with the command", prompt=True)
