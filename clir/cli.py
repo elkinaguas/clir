@@ -43,7 +43,7 @@ def init():
 @click.option('-t', '--tag', help="Tag to be associated with the command", prompt=True)
 def new(command, description, tag):
     if not check_config():
-        print("Initial configuration is not set. Executing 'clir init'...")
+        print("The initial configuration is not set. Executing 'clir init'...")
         subprocess.run(["clir", "init"])
 
     # Check again after executing 'clir init'
