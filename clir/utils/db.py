@@ -15,14 +15,6 @@ db_user_version = 1
 env_path = Path('~').expanduser() / Path(".clir")
 db_file = Path(env_path) / db_file_name
 
-# TODO: Create script to backup json stored commands before migration
-def back_json_commands():
-    source_file = f"{env_path}/commands.json"
-    destination_file = f"{env_path}/commands.json.backup"
-
-    shutil.copyfile(source_file, destination_file)
-
-    print(f"Backup of json commands stored in {source_file} to {destination_file} complete.")
 
 # Creates the DB from the schema file
 def create_database(database_name = db_file, schema_file = sql_schema_path):
@@ -45,6 +37,3 @@ def create_database(database_name = db_file, schema_file = sql_schema_path):
     cursor.close()
     conn.close()
 
-# TODO: Create migration script from json stored commands to database
-def migrate_json_to_sqlite():
-    pass
