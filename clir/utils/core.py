@@ -48,3 +48,13 @@ def replace_arguments(command):
                 command_list[indx] = value
     
     return " ".join(command_list)
+
+def uuid_to_base64(uuid_obj):
+    uuid_bytes = uuid_obj.bytes
+    base64_uuid = base64.urlsafe_b64encode(uuid_bytes).rstrip(b'=').decode('ascii')
+    return base64_uuid
+
+def base64_to_uuid(base64_uuid):
+    padding = '=' * (4 - len(base64_uuid) % 4)  # Add padding if necessary
+    uuid_bytes = base64.urlsafe_b64decode(base64_uuid + padding)
+    return uuid.UUID(bytes=uuid_bytes)
