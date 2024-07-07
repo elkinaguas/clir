@@ -9,7 +9,7 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
-from clir.utils.system import verify_xclip_installation
+from clir.utils.config import verify_xclip_installation
 from clir.utils.core import get_commands, replace_arguments
 
 class Command:
