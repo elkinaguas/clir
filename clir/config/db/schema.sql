@@ -2,23 +2,18 @@ PRAGMA user_version = 1;
 /*TODO: join date and time in one single field*/
 CREATE TABLE IF NOT EXISTS commands (
     id TEXT PRIMARY KEY,
-    creation_date DATE NOT NULL,
-    creation_time TIME NOT NULL,
-    last_modif_date DATE NOT NULL,
-    last_modif_time TIME NOT NULL,
-    note TEXT NOT NULL,
-    color TEXT
+    creation_date TEXT NOT NULL,
+    last_modif_date TEST NOT NULL,
+    command TEXT NOT NULL,
+    description TEXT NOT NULL
 );
 
 /*TODO: join date and time in one single field*/
 CREATE TABLE IF NOT EXISTS tags (
     id TEXT PRIMARY KEY,
-    creation_date DATE NOT NULL,
-    creation_time TIME NOT NULL,
-    last_modif_date DATE NOT NULL,
-    last_modif_time TIME NOT NULL,
-    tag TEXT NOT NULL,
-    color TEXT NOT NULL
+    creation_date TEXT NOT NULL,
+    last_modif_date TEXT NOT NULL,
+    tag TEXT NOT NULL
 );
 
 /*TODO: change schema so that one command can have multiple tags*/
