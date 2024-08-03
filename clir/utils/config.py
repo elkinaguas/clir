@@ -39,6 +39,7 @@ def migrate_json_to_sqlite():
             print(f"Tag: {data['tag']}")
             insert_command(command, data['description'], data['tag'])
 
+        os.remove(f"{env_path}/commands.json")
         print("Migration complete")
 
 
