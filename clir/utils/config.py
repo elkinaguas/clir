@@ -3,6 +3,8 @@ import shutil
 import subprocess
 from pathlib import Path
 from clir.utils.db import create_database
+from clir.utils.core import get_commands
+from clir.utils.db import insert_command
 
 config_directory = "clir/config/"
 env_path = Path('~').expanduser() / Path(".clir")
@@ -29,7 +31,16 @@ def migrate_json_to_sqlite():
         print("Migrating json stored commands to sqlite database...")
         back_json_commands()
         
-        
+        commands = get_commands()
+
+        for command, data in commands.items():
+            print(f"Inserting command: {command}")
+            print(f"Description: {data['description']}")
+            print(f"Tag: {data['tag']}")
+            insert_command(command, data['description'], data['tag'])
+
+        print("Migration complete")
+
 
 def create_config_files():
     dir_path = os.path.join(os.path.expanduser('~'), '.clir')
@@ -82,6 +93,7 @@ def init_config():
         print("Copying other config files...")
         copy_config_files()
 
+        migrate_json_to_sqlite()
     
     if not check_config():
         print("Could not set the initial configuration Up.")

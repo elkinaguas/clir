@@ -11,6 +11,7 @@ from rich.table import Table
 from rich.prompt import Prompt
 from clir.utils.config import verify_xclip_installation
 from clir.utils.core import get_commands, replace_arguments
+from clir.utils.db import insert_command
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -32,15 +33,10 @@ class Command:
         desc = self.description
         tag = self.tag
 
-        json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
+        if not tag:
+            tag = "clir"
 
-        uid = uuid.uuid4()
-        
-        current_commands[str(command)] = {"description": desc, "tag": tag, "uid": str(uid)}
-
-        # Write updated data to JSON file
-        with open(json_file_path, 'w') as json_file:
-            json.dump(current_commands, json_file)
+        insert_command(command, desc, tag)
 
         print(f'Command saved successfuly')
 

@@ -4,7 +4,7 @@ import subprocess
 from rich.prompt import Prompt
 from clir.command import Command
 from clir.command import CommandTable
-from clir.utils.db import create_database
+from clir.utils.db import create_database, insert_command
 from clir.utils.config import check_config, init_config
 
 @click.group()
