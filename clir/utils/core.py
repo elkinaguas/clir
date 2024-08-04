@@ -31,7 +31,7 @@ def transform_commands_to_json(commands):
         commands_json[command[3]] = {
             "description": command[4],
             "tag": get_tag_from_tag_id(get_tag_id_from_command_id(command[0])),
-            "uuid": command[0],
+            "uid": command[0],
             "creation_date": command[1],
             "last_modif_date": command[2]
         }
