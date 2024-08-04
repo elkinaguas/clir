@@ -11,7 +11,7 @@ from rich.table import Table
 from rich.prompt import Prompt
 from clir.utils.config import verify_xclip_installation
 from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json
-from clir.utils.db import insert_command, get_commands_db
+from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -36,7 +36,7 @@ class Command:
         if not tag:
             tag = "clir"
 
-        insert_command(command, desc, tag)
+        insert_command_db(command, desc, tag)
 
         print(f'Command saved successfuly')
 
@@ -44,7 +44,7 @@ class Command:
 #Create class Table
 class CommandTable:
     def __init__(self, tag: str = "", grep: str = ""):
-        self.commands = get_commands_db(tag = tag, grep = grep)
+        self.commands = transform_commands_to_json(get_commands_db(tag = tag, grep = grep))
         self.tag = tag
         self.grep = grep
 
@@ -56,7 +56,7 @@ class CommandTable:
 
     def show_table(self):
 
-        commands = transform_commands_to_json(self.commands)
+        commands = self.commands
         
         table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
         table.add_column("ID 📇", style="white bold", no_wrap=True)
@@ -118,7 +118,7 @@ class CommandTable:
             if platform.system() == "Darwin":
                 # Verify that pbcopy is installed
                 if verify_xclip_installation(package = "pbcopy"):
-                    os.system(f'echo -n "{command}" | pbcopy')
+                    os.system(f'printf "{command}" | pbcopy')
                 else:
                     print("pbcopy is not installed, this command needs pbcopy to work properly")
                     return
@@ -154,23 +154,18 @@ class CommandTable:
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
-        json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
 
         uid = self.get_command_uid()
-        all_commands = get_commands_db()
-        
-        del_command = ""
-        for command in self.commands:
-            if self.commands[command]["uid"] == uid:
-                del_command = command
 
-        if uid:
-            all_commands.pop(str(del_command))
+        remove_command_db(uid)
+        verify_command_id_exists(uid)
+        verify_command_id_tag_relation_exists(uid)
 
-            # Write updated data to JSON file
-            with open(json_file_path, 'w') as json_file:
-                json.dump(all_commands, json_file)
-
+        if verify_command_id_exists(uid):
+            print(f'Command not removed')
+        elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
+            print(f'Command removed successfuly but relation to tag not removed')
+        elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
             print(f'Command removed successfuly')
 
 

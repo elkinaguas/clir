@@ -97,7 +97,7 @@ def create_database(database_name = db_file, schema_file = sql_schema_path):
     conn.close()
 
 # Insert a new command into the database
-def insert_command(command: str, description: str, tag: str = ""):
+def insert_command_db(command: str, description: str, tag: str = ""):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -159,7 +159,7 @@ def modify_command(command: str, description: str, tag: str = ""):
     conn.close()
 
 # Remove a command from the database
-def remove_command(command: str):
+def remove_command_db(uid: str):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -167,7 +167,8 @@ def remove_command(command: str):
     cursor = conn.cursor()
 
     # Remove a command from the database
-    cursor.execute("DELETE FROM commands WHERE command = ?", (command,))
+    cursor.execute("DELETE FROM commands WHERE id = ?", (uid,))
+    cursor.execute("DELETE FROM commands_tags WHERE command_id = ?", (uid,))
 
     # Commit the changes
     conn.commit()
@@ -175,6 +176,57 @@ def remove_command(command: str):
     # Close the cursor and connection
     cursor.close()
     conn.close()
+
+def verify_command_id_exists(uid: str):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Check if command exists
+    cursor.execute("SELECT * FROM commands WHERE id = ?", (uid,))
+    command_exists = cursor.fetchone()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return True if command_exists else False
+
+def verify_tag_id_exists(uid: str):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Check if tag exists
+    cursor.execute("SELECT * FROM tags WHERE id = ?", (uid,))
+    tag_exists = cursor.fetchone()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return True if tag_exists else False
+
+def verify_command_id_tag_relation_exists(command_id: str):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Check if command_id exists in the commands_tags table
+    cursor.execute("SELECT * FROM commands_tags WHERE command_id = ?", (command_id,))
+    command_id_exists = cursor.fetchone()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return True if command_id_exists else False
 
 # Get all commands from the database
 def get_commands_db(tag: str = "", grep: str = ""):
@@ -295,7 +347,6 @@ def get_tag_from_tag_id(tag_id):
 
     tag = cursor.fetchall()[0][0]
     #tags = [row[0] for row in tag]
-    print(tag)
 
     # Close the cursor and connection
     cursor.close()

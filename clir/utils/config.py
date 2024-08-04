@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from clir.utils.db import create_database
 from clir.utils.core import get_commands
-from clir.utils.db import insert_command
+from clir.utils.db import insert_command_db
 
 config_directory = "clir/config/"
 env_path = Path('~').expanduser() / Path(".clir")
@@ -110,7 +110,7 @@ def verify_xclip_installation(package: str = ""):
             return False
     if package == "pbcopy":
         try:
-            subprocess.run(["pbcopy", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(["which", "pbcopy"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             return True
         except:
             return False
