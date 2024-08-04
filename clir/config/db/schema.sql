@@ -22,6 +22,6 @@ CREATE TABLE IF NOT EXISTS commands_tags (
     command_id TEXT,
     tag_id TEXT,
     PRIMARY KEY (command_id, tag_id),
-    FOREIGN KEY (command_id) REFERENCES notes(id),
+    FOREIGN KEY (command_id) REFERENCES commands(id),
     FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
