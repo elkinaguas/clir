@@ -2,6 +2,7 @@ import os
 import re
 import json
 import clir.utils.filters as filters
+from clir.utils.db import get_tag_id_from_command_id, get_tag_from_tag_id
 
 # Create a function that returns all commands
 def get_commands(tag: str = "", grep: str = ""):
@@ -22,6 +23,21 @@ def get_commands(tag: str = "", grep: str = ""):
     sorted_commands = dict(sorted(current_commands.items(), key=lambda item: item[1]["tag"]))
 
     return sorted_commands
+
+def transform_commands_to_json(commands):
+    commands_json = {}
+    
+    for command in commands:
+        commands_json[command[3]] = {
+            "description": command[4],
+            "tag": get_tag_from_tag_id(get_tag_id_from_command_id(command[0])),
+            "uuid": command[0],
+            "creation_date": command[1],
+            "last_modif_date": command[2]
+        }
+    
+    return commands_json
+
 
 def get_user_input(arg):
     return input(f"Enter value for '{arg}': ")
