@@ -15,6 +15,7 @@ db_user_version = 1
 env_path = Path('~').expanduser() / Path(".clir")
 db_file = Path(env_path) / db_file_name
 
+# TODO: use uuid and remove base64 conversion
 def _uuid_to_base64(uuid_obj):
     uuid_bytes = uuid_obj.bytes
     base64_uuid = base64.urlsafe_b64encode(uuid_bytes).rstrip(b'=').decode('ascii')
@@ -37,10 +38,6 @@ def _verify_tag_exists(tag: str):
     cursor.execute("SELECT * FROM tags WHERE tag = ?", (tag,))
     tag_exists = cursor.fetchone()
 
-    # Close the cursor and connection
-    cursor.close()
-    conn.close()
-
     if not tag_exists:
         tag_uuid = _uuid_to_base64(uuid.uuid4())
 
@@ -48,7 +45,12 @@ def _verify_tag_exists(tag: str):
         insert_tag(tag = tag, tag_uuid = tag_uuid)
     else:
         tag_uuid = cursor.execute("SELECT id FROM tags WHERE tag = ?", (tag,))
+        tag_uuid = cursor.fetchone()[0]
     
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
     return tag_uuid
 
 def _verify_command_exists(command: str):
@@ -175,7 +177,7 @@ def remove_command(command: str):
     conn.close()
 
 # Get all commands from the database
-def get_commands(tag: str = "", grep: str = ""):
+def get_commands_db(tag: str = "", grep: str = ""):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -184,9 +186,11 @@ def get_commands(tag: str = "", grep: str = ""):
 
     # Get all commands from the database
     if tag:
-        cursor.execute("SELECT * FROM commands WHERE tag = ?", (tag,))
+        command_ids = get_commands_from_tag(tag)
+        query = "SELECT * FROM commands WHERE id IN ({})".format(','.join('?' for _ in command_ids))
+        cursor.execute(query, command_ids)
     elif grep:
-        cursor.execute("SELECT * FROM commands WHERE command LIKE ?", (f"%{grep}%",))
+        cursor.execute("SELECT * FROM commands WHERE command LIKE ? OR description LIKE ?", (f"%{grep}%", f"%{grep}%"))
     else:
         cursor.execute("SELECT * FROM commands")
 
@@ -199,7 +203,7 @@ def get_commands(tag: str = "", grep: str = ""):
     return commands
 
 # Get all tags from the database
-def get_tags(grep: str = ""):
+def get_tags_db(grep: str = ""):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -260,3 +264,81 @@ def remove_tag(tag: str):
     cursor.close()
     conn.close()
 
+
+
+def get_tag_id_from_command_id(command_id):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Get the tag_id from the commands_tags table
+    cursor.execute("SELECT * FROM commands_tags WHERE command_id = ?", (command_id,))
+    tag_id = cursor.fetchone()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return tag_id
+
+def get_tag_from_tag_id(tag_id):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    query = "SELECT tag FROM tags WHERE id IN ({})".format(','.join('?' for _ in tag_id))
+    cursor.execute(query, tag_id)
+
+    tag = cursor.fetchall()[0][0]
+    #tags = [row[0] for row in tag]
+    print(tag)
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return tag
+
+def get_tag_id_from_tag(tag):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Get the tag_id from the tags table
+    cursor.execute("SELECT id FROM tags WHERE tag = ?", (tag,))
+    tag_id = cursor.fetchone()[0]
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return tag_id
+
+def get_command_ids_from_tag_id(tag_id):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Get the command_id from the commands_tags table
+    cursor.execute("SELECT * FROM commands_tags WHERE tag_id = ?", (tag_id,))
+    command_ids = cursor.fetchall()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return [id[0] for id in command_ids]
+
+def get_commands_from_tag(tag):
+    tag_id = get_tag_id_from_tag(tag)
+    command_id = get_command_ids_from_tag_id(tag_id)
+
+    return command_id
