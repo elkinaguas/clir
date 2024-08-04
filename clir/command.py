@@ -10,8 +10,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
 from clir.utils.config import verify_xclip_installation
-from clir.utils.core import get_commands, replace_arguments
-from clir.utils.db import insert_command
+from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json
+from clir.utils.db import insert_command, get_commands_db
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -27,7 +27,7 @@ class Command:
         return f"{self.command} {self.description} {self.tag}"
 
     def save_command(self):
-        current_commands = get_commands()
+        current_commands = get_commands_db()
 
         command = self.command
         desc = self.description
@@ -44,7 +44,7 @@ class Command:
 #Create class Table
 class CommandTable:
     def __init__(self, tag: str = "", grep: str = ""):
-        self.commands = get_commands(tag = tag, grep = grep)
+        self.commands = get_commands_db(tag = tag, grep = grep)
         self.tag = tag
         self.grep = grep
 
@@ -56,8 +56,8 @@ class CommandTable:
 
     def show_table(self):
 
-        commands = self.commands
-
+        commands = transform_commands_to_json(self.commands)
+        
         table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
         table.add_column("ID 📇", style="white bold", no_wrap=True)
         table.add_column("Command 💻", style="green bold", no_wrap=True)
@@ -157,7 +157,7 @@ class CommandTable:
         json_file_path = os.path.join(os.path.expanduser('~'), '.clir/commands.json')
 
         uid = self.get_command_uid()
-        all_commands = get_commands()
+        all_commands = get_commands_db()
         
         del_command = ""
         for command in self.commands:
