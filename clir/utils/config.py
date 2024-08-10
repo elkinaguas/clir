@@ -26,8 +26,8 @@ def back_json_commands():
 
 def migrate_json_to_sqlite():
     if os.path.exists(f"{env_path}/commands.json"):
-        print("Migrating json stored commands to sqlite database...")
         back_json_commands()
+        print("Migrating json stored commands to sqlite database...")
         
         commands = get_commands()
 
@@ -36,6 +36,7 @@ def migrate_json_to_sqlite():
             print(f"Description: {data['description']}")
             print(f"Tag: {data['tag']}")
             insert_command_db(command, data['description'], data['tag'])
+            print("---")
 
         os.remove(f"{env_path}/commands.json")
         print("Migration complete")
