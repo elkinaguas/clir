@@ -33,6 +33,7 @@ jobs:
         run: |
           poetry install ; poetry build ; pip install .
       - name: Test with pytest
+        if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
           sudo apt-get install -y xclip
