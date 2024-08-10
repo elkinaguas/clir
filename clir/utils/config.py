@@ -16,7 +16,6 @@ def check_config():
 
     return os.path.exists(db_file_path) and os.path.exists(config_file_path)
 
-# TODO: Create script to backup json stored commands before migration
 def back_json_commands():
     source_file = f"{env_path}/commands.json"
     destination_file = f"{env_path}/commands.json.backup"
@@ -25,7 +24,6 @@ def back_json_commands():
 
     print(f"Backup of json commands stored in {source_file} to {destination_file} complete.")
 
-# TODO: Create migration script from json stored commands to database
 def migrate_json_to_sqlite():
     if os.path.exists(f"{env_path}/commands.json"):
         print("Migrating json stored commands to sqlite database...")
@@ -37,7 +35,7 @@ def migrate_json_to_sqlite():
             print(f"Inserting command: {command}")
             print(f"Description: {data['description']}")
             print(f"Tag: {data['tag']}")
-            insert_command(command, data['description'], data['tag'])
+            insert_command_db(command, data['description'], data['tag'])
 
         os.remove(f"{env_path}/commands.json")
         print("Migration complete")

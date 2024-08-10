@@ -1,5 +1,4 @@
 PRAGMA user_version = 1;
-/*TODO: join date and time in one single field*/
 CREATE TABLE IF NOT EXISTS commands (
     id TEXT PRIMARY KEY,
     creation_date TEXT NOT NULL,
@@ -8,7 +7,6 @@ CREATE TABLE IF NOT EXISTS commands (
     description TEXT NOT NULL
 );
 
-/*TODO: join date and time in one single field*/
 CREATE TABLE IF NOT EXISTS tags (
     id TEXT PRIMARY KEY,
     creation_date TEXT NOT NULL,
@@ -16,8 +14,6 @@ CREATE TABLE IF NOT EXISTS tags (
     tag TEXT NOT NULL
 );
 
-/*TODO: change schema so that one command can have multiple tags*/
-/*TODO: join date and time in one single field*/
 CREATE TABLE IF NOT EXISTS commands_tags (
     command_id TEXT,
     tag_id TEXT,
