@@ -18,9 +18,8 @@ click = "^8.1.7"
 rich-click = "^1.7.0"
 textual = "^0.47.1"
 
-include = [
-    { path = "clir/config/*", format = ["sdist", "wheel"] }
-]
+[tool.poetry.package.include]
+include = "clir/config/db/schema.sql"
 
 [build-system]
 requires = ["poetry-core"]
