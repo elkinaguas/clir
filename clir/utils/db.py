@@ -15,18 +15,6 @@ db_user_version = 1
 env_path = Path('~').expanduser() / Path(".clir")
 db_file = Path(env_path) / db_file_name
 
-# TODO: use uuid and remove base64 conversion
-def _uuid_to_base64(uuid_obj):
-    uuid_bytes = uuid_obj.bytes
-    base64_uuid = base64.urlsafe_b64encode(uuid_bytes).rstrip(b'=').decode('ascii')
-    return str(base64_uuid)
-
-
-def _base64_to_uuid(base64_uuid):
-    padding = '=' * (4 - len(base64_uuid) % 4)  # Add padding if necessary
-    uuid_bytes = base64.urlsafe_b64decode(base64_uuid + padding)
-    return str(uuid.UUID(bytes=uuid_bytes))
-
 def _verify_tag_exists(tag: str):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
@@ -39,7 +27,7 @@ def _verify_tag_exists(tag: str):
     tag_exists = cursor.fetchone()
 
     if not tag_exists:
-        tag_uuid = _uuid_to_base64(uuid.uuid4())
+        tag_uuid = str(uuid.uuid4())
 
         # Insert a new tag into the database
         insert_tag(tag = tag, tag_uuid = tag_uuid)
@@ -104,7 +92,7 @@ def insert_command_db(command: str, description: str, tag: str = ""):
     # Create a cursor object to interact with the database
     cursor = conn.cursor()
 
-    command_uuid = _uuid_to_base64(uuid.uuid4())
+    command_uuid = str(uuid.uuid4())
     tag_uuid = ""
 
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
@@ -120,8 +108,8 @@ def insert_command_db(command: str, description: str, tag: str = ""):
         # Insert a new command into the database
         cursor.execute("INSERT INTO commands (command, description, id, creation_date, last_modif_date) VALUES (?, ?, ?, ?, ?)", (command, description, command_uuid, creation_date, last_modif_date))
 
-    # Insert a new command into the commands_tags table
-    cursor.execute("INSERT INTO commands_tags (command_id, tag_id) VALUES (?, ?)", (command_uuid, tag_uuid))
+        # Insert a new command into the commands_tags table
+        cursor.execute("INSERT INTO commands_tags (command_id, tag_id) VALUES (?, ?)", (command_uuid, tag_uuid))
 
     # Commit the changes
     conn.commit()
@@ -129,6 +117,8 @@ def insert_command_db(command: str, description: str, tag: str = ""):
     # Close the cursor and connection
     cursor.close()
     conn.close()
+
+    return 0
 
 # Modify a command in the database
 def modify_command(command: str, description: str, tag: str = ""):
@@ -138,7 +128,8 @@ def modify_command(command: str, description: str, tag: str = ""):
     # Create a cursor object to interact with the database
     cursor = conn.cursor()
 
-    command_uuid = _uuid_to_base64(uuid.uuid4())
+    command_uuid = cursor.execute("SELECT id FROM commands WHERE command = ?", (command,))
+    command_uuid = cursor.fetchone()[0]
     tag_uuid = ""
 
     last_modif_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
@@ -157,6 +148,9 @@ def modify_command(command: str, description: str, tag: str = ""):
     # Close the cursor and connection
     cursor.close()
     conn.close()
+
+    return 0
+
 
 # Remove a command from the database
 def remove_command_db(uid: str):
@@ -277,7 +271,7 @@ def get_tags_db(grep: str = ""):
     return tags
 
 # Insert a new tag into the database
-def insert_tag(tag: str, tag_uuid: str = _uuid_to_base64(uuid.uuid4())):
+def insert_tag(tag: str, tag_uuid: str = str(uuid.uuid4())):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -316,7 +310,22 @@ def remove_tag(tag: str):
     cursor.close()
     conn.close()
 
+def get_command_id_from_command(command):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_file)
 
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Get the command_id from the commands table
+    cursor.execute("SELECT id FROM commands WHERE command = ?", (command,))
+    command_id = cursor.fetchone()[0]
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return command_id
 
 def get_tag_id_from_command_id(command_id):
     # Connect to the SQLite database
@@ -357,13 +366,17 @@ def get_tag_from_tag_id(tag_id):
 def get_tag_id_from_tag(tag):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
+    tag_id = ""
 
     # Create a cursor object to interact with the database
     cursor = conn.cursor()
 
     # Get the tag_id from the tags table
     cursor.execute("SELECT id FROM tags WHERE tag = ?", (tag,))
-    tag_id = cursor.fetchone()[0]
+    try :
+        tag_id = cursor.fetchone()[0]
+    except:
+        pass
 
     # Close the cursor and connection
     cursor.close()
@@ -393,3 +406,123 @@ def get_commands_from_tag(tag):
     command_id = get_command_ids_from_tag_id(tag_id)
 
     return command_id
+
+# TODO: pass a garbag collector to remove tags that are not used after removing or modifying a command
+
+class DbIntegrity:
+    def __init__(self):
+        self.commands_ids = ""
+        self.commands = ""
+        self.tags_ids = ""
+        self.tags = ""
+    
+    def get_commands_ids(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all commands from the database
+        cursor.execute("SELECT id FROM commands")
+
+        self.commands_ids = [command_id[0] for command_id in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return self.commands_ids
+    
+    def get_commands(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all commands from the database
+        cursor.execute("SELECT command FROM commands")
+
+        self.commands = [command[0] for command in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return self.commands
+
+    def get_tags_ids(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all tags from the database
+        cursor.execute("SELECT id FROM tags")
+
+        self.tags_ids = [tag_id[0] for tag_id in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return self.tags_ids
+    
+    def get_tags(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all tags from the database
+        cursor.execute("SELECT tag FROM tags")
+
+        self.tags = [tag[0] for tag in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return self.tags
+    
+    def get_commands_ids_relation(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all tags from the database
+        cursor.execute("SELECT command_id FROM commands_tags")
+
+        command_tag_relation = [command_id[0] for command_id in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return command_tag_relation
+
+    def get_tags_ids_relation(self):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Get all tags from the database
+        cursor.execute("SELECT tag_id FROM commands_tags")
+
+        tag_command_relation = [tag_id[0] for tag_id in cursor.fetchall()]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        return tag_command_relation
+
+    def main(self):
+        return self.get_commands_ids(), self.get_commands(), self.get_tags_ids(), self.get_tags(), self.get_commands_ids_relation(), self.get_tags_ids_relation()
