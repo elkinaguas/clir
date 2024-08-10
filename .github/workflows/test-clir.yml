@@ -29,5 +29,5 @@ jobs:
           poetry install ; poetry build ; pip install .
       - name: Test with pytest
         run: |
-          pip install pytest pytest-cov coverage
-          pytest -v -s tests/init_clir.py tests/add_command.py tests/remove_command.py
+          pip install pytest pytest-cov coverage pyperclip
+          pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py
