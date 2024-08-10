@@ -23,8 +23,8 @@ jobs:
       - name: Install xclip
         if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
-          apt-get update
-          apt-get install -y xclip
+          sudo apt-get update
+          sudo apt-get install -y xclip
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
