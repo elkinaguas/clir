@@ -4,10 +4,14 @@
 Clir provides a clear and fast way to store and recover your commands.
 
 ## Installation
-Install `clir` using pip.
+Install `clir` using pip3 and pipx.
 
 ```bash
 pip3 install clir
+```
+
+```bash
+pipx install clir
 ```
 
 ## Usage
