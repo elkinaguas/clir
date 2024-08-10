@@ -19,7 +19,7 @@ rich-click = "^1.7.0"
 textual = "^0.47.1"
 
 include = [
-    "clir/config/db/schema.sql"
+    { path = "clir/config/db/schema.sql", format = ["sdist", "wheel"] }
 ]
 
 [build-system]
