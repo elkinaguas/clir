@@ -18,6 +18,10 @@ click = "^8.1.7"
 rich-click = "^1.7.0"
 textual = "^0.47.1"
 
+include = [
+    "clir/config/db/schema.sql"
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
