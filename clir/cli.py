@@ -10,34 +10,6 @@ from clir.utils.config import init_config
 def cli():
     pass
 
-#def check_config():
-#    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-#    file_path = os.path.join(dir_path, 'commands.json')
-#    return os.path.exists(file_path)
-
-#--------------------------------------- CLI commands  -------------------------------------------------------
-
-#@cli.command(help="Clir initial configuration 🛠️")
-#def init():
-#    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-#    os.makedirs(dir_path, exist_ok=True)
-    
-    # Define the file path and name
-#    files = ['commands.json', 'credentials.json']
-
-    # Check if the file already exists
-#    for file in files:
-#        file_path = os.path.join(dir_path, file)
-#        if not os.path.exists(file_path):
-#            # Create the file
-#            with open(file_path, 'w') as file_object:
-#                file_object.write('{}')
-
-#            print(f'File "{file_path}" created successfully.')
-#        else:
-#            print(f'A clir environment already exists in "{dir_path}".')
-    
-#    create_database()
 
 
 @cli.command(help="Save new command 💾")
