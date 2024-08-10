@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install xclip
-        if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
+        if: runner.os == 'ubuntu-latest'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
           sudo apt-get install -y xclip
