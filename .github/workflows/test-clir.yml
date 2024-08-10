@@ -24,7 +24,7 @@ jobs:
         if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
-          sudo apt-get install -y xclip xselect
+          sudo apt-get install -y xclip xsel
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
