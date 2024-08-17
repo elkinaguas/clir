@@ -34,7 +34,7 @@ jobs:
         run: |
           poetry install ; poetry build ; pip install .
       - name: Test with pytest
-        if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
+        # if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           pip install pytest pytest-cov coverage pyperclip
           pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py
