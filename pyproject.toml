@@ -19,7 +19,9 @@ rich-click = "^1.7.0"
 textual = "^0.47.1"
 
 [tool.poetry.include]
-include = "clir/config/db/schema.sql"
+files = [
+    "clir/config/**"
+]
 
 [build-system]
 requires = ["poetry-core"]
