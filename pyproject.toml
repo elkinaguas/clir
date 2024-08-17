@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clir"
-version = "0.6.3"
+version = "0.6.0"
 description = "A clear and fast way to store and recover your commands"
 authors = ["Elkin Aguas <elkinaguas@gmail.com>"]
 license = "MIT License"
@@ -17,9 +17,6 @@ rich = "^13.5.2"
 click = "^8.1.7"
 rich-click = "^1.7.0"
 textual = "^0.47.1"
-
-[tool.poetry.package.include]
-include = "clir/config/db/schema.sql"
 
 [build-system]
 requires = ["poetry-core"]

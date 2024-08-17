@@ -4,6 +4,7 @@ import base64
 from pathlib import Path
 import datetime
 import shutil
+import importlib.resources
 
 # Specify the directory and file name
 schema_directory = "clir/config/db/"
@@ -72,10 +73,9 @@ def create_database(database_name = db_file, schema_file = sql_schema_path):
     cursor = conn.cursor()
 
     # Read and execute SQL statements from the schema file
-    with open(schema_file, 'r') as schema_file:
-        schema_sql = schema_file.read()
-        #print(schema_sql)
-        cursor.executescript(schema_sql)
+    with importlib.resources.open_text('clir.config.db', 'schema.sql') as f:
+        schema = f.read()
+        cursor.executescript(schema)
         
     # Commit the changes
     conn.commit()

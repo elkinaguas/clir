@@ -5,6 +5,7 @@ from pathlib import Path
 from clir.utils.db import create_database
 from clir.utils.core import get_commands
 from clir.utils.db import insert_command_db
+import importlib.resources
 
 config_directory = "clir/config/"
 env_path = Path('~').expanduser() / Path(".clir")
@@ -70,11 +71,11 @@ def copy_config_files():
 
     # Check if the file already exists
     for file in files:
+        with importlib.resources.open_text('clir.config', 'clir.conf') as f:
+            conf = f.read()
+            with open(f"{env_path}/{file}", "w") as file:
+                file.write(conf)
 
-        source_file = f"{config_directory}/{file}"
-        destination_file = f"{env_path}/{file}"
-
-        shutil.copyfile(source_file, destination_file)
         print(f"Copying {file} file to {env_path}")
 
 def init_config():
