@@ -59,3 +59,11 @@ def tags(grep: str = ""):
     init_config()
     table = CommandTable(grep=grep)
     table.show_tags()
+
+@cli.command(help="Export 😮‍💨")
+@click.option('-t', '--tag', help="Search by tag")
+@click.option('-g', '--grep', help="Search by grep")
+def export(tag: str = "", grep: str = ""):
+    init_config()
+    table = CommandTable(tag=tag, grep=grep)
+    table.export_commands()

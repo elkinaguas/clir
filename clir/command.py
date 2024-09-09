@@ -150,7 +150,16 @@ class CommandTable:
         console = Console()
         console.print(table)
         print(f"Showing {str(len(tags))} tags")
-    
+
+    def export_commands(self):
+        try:
+            with open("commands.json", "w") as commands_file:
+                json.dump(self.commands, commands_file)
+            print(f"[bold green]Commands exported succesfully[/bold green] to {os.getcwd()}/commands.json")
+        except:
+            print("[bold red]Commands could not be exported[/bold red]")
+            raise
+        
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
