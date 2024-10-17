@@ -60,6 +60,19 @@ def tags(grep: str = ""):
     table = CommandTable(grep=grep)
     table.show_tags()
 
+@cli.command(help="Import 🤓")
+@click.option('-f', '--file', help="Search by grep")
+def imports(file: str = ""):
+    init_config()
+    if file:
+        table = CommandTable()
+        table.import_commands(import_file_path = file)
+    else:
+        while not file:
+            file = str(Prompt.ask("Insert import file path"))
+        table = CommandTable()
+        table.import_commands(import_file_path = file)
+
 @cli.command(help="Export 😮‍💨")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")

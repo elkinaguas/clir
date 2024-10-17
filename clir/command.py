@@ -4,6 +4,7 @@ import json
 import uuid
 import platform
 import subprocess
+from datetime import datetime
 from rich import box
 from rich import print
 from rich.console import Console
@@ -11,7 +12,7 @@ from rich.table import Table
 from rich.prompt import Prompt
 from clir.utils.config import verify_xclip_installation
 from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json
-from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists
+from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -159,7 +160,74 @@ class CommandTable:
         except:
             print("[bold red]Commands could not be exported[/bold red]")
             raise
-        
+    
+    def import_commands(self, import_file_path: str = ""):
+        if import_file_path:
+            import_commands = ""
+            existing_commands = self.commands
+
+
+            if os.path.exists(import_file_path):
+                try:
+                    with open(import_file_path, 'r') as import_file:
+                        print(f"Importing commands from {import_file_path}...")
+                        import_commands =  json.load(import_file)
+                except Exception as e:
+                    raise Exception(f"Un error ocurred while reading the file '{import_file_path}'")
+            else:
+                raise FileNotFoundError(f"File '{import_file_path}' could not be found")
+
+
+            for command, data in import_commands.items():
+                if command in existing_commands.keys() \
+                and data['description'] == existing_commands[command]["description"] \
+                and data['tag'] == existing_commands[command]["tag"]:
+                    print(f"No changes detected in command [bold green]{command}[/bold green]. Command not imported.")
+                    print("---")
+
+                elif command in existing_commands.keys() \
+                and (data['description'] != existing_commands[command]["description"] or data['tag'] != existing_commands[command]["tag"]):
+                    import_choice = ""
+                    print("The command [bold green]{command}[/bold green] already exists in the database:")
+                    print(data)
+                    table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
+                    table.add_column("", style="white bold", no_wrap=True)
+                    table.add_column("Import", style="green bold", no_wrap=True)
+                    table.add_column("Database", style="magenta bold")
+                    table.add_row("Command", command, command)
+                    table.add_row("Description", data['description'], existing_commands[command]["description"])
+                    table.add_row("Tag", data['tag'], existing_commands[command]["tag"])
+                    table.add_row("Creation date", data['creation_date'], existing_commands[command]["creation_date"])
+                    table.add_row("Laste modification date", data['last_modif_date'], existing_commands[command]["last_modif_date"])
+                    console = Console()
+                    console.print(table)
+
+                    while import_choice != "n" and import_choice != "y":
+                        import_choice = Prompt.ask("Do you want to replace the existing command? (y/n)").lower()
+
+                    if import_choice == "y":
+                        print(f"Importing command: {command}")
+                        print(f"Description: {data['description']}")
+                        print(f"Tag: {data['tag']}")
+                        print(f"Creation date: {data['creation_date']}")
+                        print(f"Last modification date: {data['last_modif_date']}")
+                        modify_command_db(command, data['description'], data['tag'], data['creation_date'], data['last_modif_date'])
+                        print("---")
+                    elif import_choice == "n":
+                        print("Keeping the already existing command.")
+                
+                else:
+                    print(f"Importing command: {command}")
+                    print(f"Description: {data['description']}")
+                    print(f"Tag: {data['tag']}")
+                    print(f"Creation date: {data['creation_date']}")
+                    print(f"Last modification date: {data['last_modif_date']}")
+                    insert_command_db(command, data['description'], data['tag'], data['creation_date'], data['last_modif_date'])
+                    print("---")
+
+            print("Import complete")
+        else:
+            print("No file was passed to import")
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
