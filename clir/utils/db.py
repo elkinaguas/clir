@@ -85,7 +85,7 @@ def create_database(database_name = db_file, schema_file = sql_schema_path):
     conn.close()
 
 # Insert a new command into the database
-def insert_command_db(command: str, description: str, tag: str = ""):
+def insert_command_db(command: str, description: str, tag: str = "", creation_date: str = "", last_modif_date: str = ""):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -95,15 +95,20 @@ def insert_command_db(command: str, description: str, tag: str = ""):
     command_uuid = str(uuid.uuid4())
     tag_uuid = ""
 
-    creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    last_modif_date = creation_date
+    if not creation_date and not last_modif_date:
+        creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        last_modif_date = creation_date
+    elif creation_date and not last_modif_date:
+        last_modif_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    elif not creation_date and last_modif_date:
+        creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
     tag_uuid = _verify_tag_exists(tag)
 
     command_exists = _verify_command_exists(command)
 
     if command_exists:
-        modify_command(command, description, tag)
+        modify_command_db(command, description, tag)
     else:
         # Insert a new command into the database
         cursor.execute("INSERT INTO commands (command, description, id, creation_date, last_modif_date) VALUES (?, ?, ?, ?, ?)", (command, description, command_uuid, creation_date, last_modif_date))
@@ -121,7 +126,7 @@ def insert_command_db(command: str, description: str, tag: str = ""):
     return 0
 
 # Modify a command in the database
-def modify_command(command: str, description: str, tag: str = ""):
+def modify_command_db(command: str, description: str, tag: str = "", creation_date: str = "", last_modif_date: str = ""):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
 
@@ -132,12 +137,17 @@ def modify_command(command: str, description: str, tag: str = ""):
     command_uuid = cursor.fetchone()[0]
     tag_uuid = ""
 
-    last_modif_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    if not last_modif_date:
+        last_modif_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
+    if creation_date:
+        # Modify the command in the database
+        cursor.execute("UPDATE commands SET description = ?, creation_date = ?, last_modif_date = ? WHERE command = ?", (description, creation_date, last_modif_date, command))
+    else:
+        # Modify the command in the database
+        cursor.execute("UPDATE commands SET description = ?, last_modif_date = ? WHERE command = ?", (description, last_modif_date, command))
 
     tag_uuid = _verify_tag_exists(tag)
-
-    # Modify the command in the database
-    cursor.execute("UPDATE commands SET description = ?, last_modif_date = ? WHERE command = ?", (description, last_modif_date, command))
 
     # Modify the command in the commands_tags table
     cursor.execute("UPDATE commands_tags SET tag_id = ? WHERE command_id = ?", (tag_uuid, command_uuid))
