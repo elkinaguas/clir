@@ -36,4 +36,4 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov coverage pyperclip
-          pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py
+          pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py
