@@ -43,27 +43,23 @@ def get_user_input(arg):
     return input(f"Enter value for '{arg}': ")
 
 def replace_arguments(command):
-    # Use regex to find all arguments with underscores
-    matches = re.findall(r'_\w+', command)
-
-    # Check that all arguments are unique
-    if len(matches) != len(set(matches)):
-        print("[bold red]Make sure that all arguments are unique[/bold red]")
-        return None
+    # Use regex to find all arguments with @ prefix that have a space before them
+    # This avoids matching email addresses or other @ uses
+    matches = re.findall(r'(?<=\s)@[\w-]+(?!\S*@)', command)
     
-    # Prompt the user for values for each argument
-    replacements = {arg: get_user_input(arg) for arg in matches}
+    # Create a dict to store unique variables and their values
+    replacements = {}
     
-    # Split the command into a list
-    command_list = command.split(" ")
-
-    # Replace arguments in the command
-    for arg, value in replacements.items():
-        for indx,term in enumerate(command_list):
-            if arg == term:
-                command_list[indx] = value
+    # Get user input only once for each unique variable
+    for var in matches:
+        if var not in replacements:
+            replacements[var] = get_user_input(var)
     
-    return " ".join(command_list)
+    # Replace all occurrences of each variable in the command
+    for var, value in replacements.items():
+        command = command.replace(var, value)
+    
+    return command
 
 def uuid_to_base64(uuid_obj):
     uuid_bytes = uuid_obj.bytes
