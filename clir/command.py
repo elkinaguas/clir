@@ -123,7 +123,7 @@ class CommandTable:
                 else:
                     print("pbcopy is not installed, this command needs pbcopy to work properly")
                     return
-            elif platform.system() == "Linux":
+            elif platform.system() == "Linux" or platform.system().startswith("CYGWIN"):
                 # Verify that xclip is installed
                 if verify_xclip_installation(package = "xclip"):
                     os.system(f'echo -n "{command}" | xclip -selection clipboard')
