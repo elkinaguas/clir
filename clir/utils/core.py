@@ -85,21 +85,24 @@ def remove_tag_if_no_commands(tag_uids):
     
     if orphan_tags:
         print("You have the following orphan tags:")
-        pprint(orphan_tags, expand_all=True)
+        for i, tag in enumerate(orphan_tags):
+            print(f"[bold green]{tag}[/bold green]", end='')
+            if i < len(orphan_tags) - 1:
+                print(', ', end='')
+        print()
         
         response = input("Do you want to remove these orphan tags? (y/n): ").strip().lower()
         if response == 'y':
-            print("You chose yes.")
             for tag in orphan_tags:
                 remove_tag(tag)
 
                 if verify_tag_id_exists(tag):
-                    print(f'Tag {tag} could not be removed.')
+                    print(f'Tag [bold green]{tag}[/bold green] could not be removed.')
                 else:
-                    print(f'[bold green]Tag[/bold green] {tag} [bold green]removed successfully.[/bold green]')
+                    print(f'Tag [bold green]{tag}[/bold green] removed successfully.')
 
         elif response == 'n':
-            print("You chose no. No orphan tags will be removed.")
+            print("No orphan tags will be removed.")
         else:
             print("Invalid response.")
     
