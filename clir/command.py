@@ -11,8 +11,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
 from clir.utils.config import verify_xclip_installation
-from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json
-from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db
+from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json, remove_tag_if_no_commands
+from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db, get_tag_id_from_command_id, get_tags_db
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -233,10 +233,11 @@ class CommandTable:
     def remove_command(self):
 
         uid = self.get_command_uid()
+        tag_uids = [tag[0] for tag in get_tags_db()]
 
         remove_command_db(uid)
-        verify_command_id_exists(uid)
-        verify_command_id_tag_relation_exists(uid)
+        #verify_command_id_exists(uid)
+        #verify_command_id_tag_relation_exists(uid)
 
         if verify_command_id_exists(uid):
             print(f'Command not removed')
@@ -244,6 +245,10 @@ class CommandTable:
             print(f'Command removed successfuly but relation to tag not removed')
         elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
             print(f'Command removed successfuly')
+        
+        remove_tag_if_no_commands(tag_uids)
+        
+
 
 
     def get_command_uid(self):

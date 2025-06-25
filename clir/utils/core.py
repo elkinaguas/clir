@@ -1,8 +1,9 @@
 import os
 import re
 import json
+from rich import print
 import clir.utils.filters as filters
-from clir.utils.db import get_tag_id_from_command_id, get_tag_from_tag_id
+from clir.utils.db import get_tag_id_from_command_id, get_tag_from_tag_id, remove_tag, get_command_ids_from_tag_id, verify_tag_id_exists
 
 # Create a function that returns all commands
 def get_commands(tag: str = "", grep: str = ""):
@@ -26,6 +27,7 @@ def get_commands(tag: str = "", grep: str = ""):
 
 def transform_commands_to_json(commands):
     commands_json = {}
+
     
     for command in commands:
         commands_json[command[3]] = {
@@ -70,3 +72,36 @@ def base64_to_uuid(base64_uuid):
     padding = '=' * (4 - len(base64_uuid) % 4)  # Add padding if necessary
     uuid_bytes = base64.urlsafe_b64decode(base64_uuid + padding)
     return uuid.UUID(bytes=uuid_bytes)
+
+# Create a function that takes a list of tag_uids and verify if there are any commands with that tag_uid, if that is not the case remove the db entry for that tag_uid
+def remove_tag_if_no_commands(tag_uids):
+    # get tag names from tag_uids
+    orphan_tags = []
+    
+    for tag_uid in tag_uids:
+        if not get_command_ids_from_tag_id(tag_uid):
+            orphan_tags.append(get_tag_from_tag_id((tag_uid,)))
+    
+    if orphan_tags:
+        print("You have the following orphan tags:")
+        for i, tag in enumerate(orphan_tags):
+            print(f"[bold green]{tag}[/bold green]", end='')
+            if i < len(orphan_tags) - 1:
+                print(', ', end='')
+        print()
+        
+        response = input("Do you want to remove these orphan tags? (y/n): ").strip().lower()
+        if response == 'y':
+            for tag in orphan_tags:
+                remove_tag(tag)
+
+                if verify_tag_id_exists(tag):
+                    print(f'Tag [bold green]{tag}[/bold green] could not be removed.')
+                else:
+                    print(f'Tag [bold green]{tag}[/bold green] removed successfully.')
+
+        elif response == 'n':
+            print("No orphan tags will be removed.")
+        else:
+            print("Invalid response.")
+    
