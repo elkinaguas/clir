@@ -1,7 +1,6 @@
 import os
 import re
 import json
-from rich.pretty import pprint
 from rich import print
 import clir.utils.filters as filters
 from clir.utils.db import get_tag_id_from_command_id, get_tag_from_tag_id, remove_tag, get_command_ids_from_tag_id, verify_tag_id_exists
