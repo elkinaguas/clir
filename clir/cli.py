@@ -80,3 +80,7 @@ def export(tag: str = "", grep: str = ""):
     init_config()
     table = CommandTable(tag=tag, grep=grep)
     table.export_commands()
+
+@cli.command(help="Settings ⚙️")
+def settings():
+    init_config()
