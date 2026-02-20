@@ -25,3 +25,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 clir = "clir.cli:cli"
 init_clir = 'clir.cli:init'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "[0-9]*-*.py"]

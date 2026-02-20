@@ -7,7 +7,7 @@ import pyperclip, os
 def test_remove_command():
     cids, _, tids, _, crel, trel = db_integrity_check()
     runner = CliRunner()
-    result = runner.invoke(rm, input='1\n')
+    result = runner.invoke(rm, input='1\nn\n')
     
     assert result.exit_code == 0
 
@@ -22,7 +22,7 @@ def test_remove_command():
 def test_remove_command_by_tag():
     cids, _, tids, _, crel, trel = db_integrity_check()
     runner = CliRunner()
-    result = runner.invoke(rm, ['-t', "c2"], input='1\n')
+    result = runner.invoke(rm, ['-t', "c2"], input='1\nn\n')
     cids2, _, tids2, _, crel2, trel2 = db_integrity_check()
     assert result.exit_code == 0
 
@@ -35,7 +35,7 @@ def test_remove_command_by_tag():
 def test_remove_command_by_grep():
     cids, _, tids, _, crel, trel = db_integrity_check()
     runner = CliRunner()
-    result = runner.invoke(rm, ['-g', "command 3"], input='1\n')
+    result = runner.invoke(rm, ['-g', "command 3"], input='1\nn\n')
     cids2, _, tids2, _, crel2, trel2 = db_integrity_check()
     assert result.exit_code == 0
 
@@ -47,7 +47,7 @@ def test_remove_command_by_grep():
 def test_remove_command_by_tag_and_grep():
     cids, _, tids, _, crel, trel = db_integrity_check()
     runner = CliRunner()
-    result = runner.invoke(rm, ['-t', "touch-test", '-g', "file"], input='1\n')
+    result = runner.invoke(rm, ['-t', "touch-test", '-g', "file"], input='1\nn\n')
     cids2, _, tids2, _, crel2, trel2 = db_integrity_check()
     assert result.exit_code == 0
 
