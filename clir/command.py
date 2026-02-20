@@ -233,16 +233,18 @@ class CommandTable:
     def remove_command(self):
         uids = self.get_command_uids()
         tag_uids = [tag[0] for tag in get_tags_db()]
+        uid_to_command = {value["uid"]: command for command, value in self.commands.items()}
 
         for uid in uids:
+            command_name = uid_to_command.get(uid, "unknown")
             remove_command_db(uid)
 
             if verify_command_id_exists(uid):
-                print('Command not removed')
+                print(f'Command {command_name} not removed.')
             elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
-                print('Command removed successfuly but relation to tag not removed')
+                print(f'Command {command_name} removed successfuly but relation to tag not removed.')
             elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
-                print('Command removed successfuly')
+                print(f'Command {command_name} removed successfuly.')
         
         remove_tag_if_no_commands(tag_uids)
         
