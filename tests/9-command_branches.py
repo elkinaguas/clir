@@ -176,7 +176,7 @@ def test_remove_command_reports_when_command_still_exists(monkeypatch):
     table = object.__new__(CommandTable)
     table.commands = {}
 
-    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(CommandTable, "get_command_uids", lambda self: ["uid-1"])
     monkeypatch.setattr(command_module, "get_tags_db", lambda: [("tag-1",)])
     monkeypatch.setattr(command_module, "remove_command_db", lambda uid: None)
     monkeypatch.setattr(command_module, "verify_command_id_exists", lambda uid: True)
@@ -189,7 +189,7 @@ def test_remove_command_reports_relation_not_removed(monkeypatch):
     table = object.__new__(CommandTable)
     table.commands = {}
 
-    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(CommandTable, "get_command_uids", lambda self: ["uid-1"])
     monkeypatch.setattr(command_module, "get_tags_db", lambda: [("tag-1",)])
     monkeypatch.setattr(command_module, "remove_command_db", lambda uid: None)
     monkeypatch.setattr(command_module, "verify_command_id_exists", lambda uid: False)
@@ -197,3 +197,49 @@ def test_remove_command_reports_relation_not_removed(monkeypatch):
     monkeypatch.setattr(command_module, "remove_tag_if_no_commands", lambda tag_uids: None)
 
     table.remove_command()
+
+
+def test_parse_command_ids_input_supports_commas_and_ranges():
+    table = object.__new__(CommandTable)
+    table.commands = {
+        "echo one": {"uid": "1"},
+        "echo two": {"uid": "2"},
+        "echo three": {"uid": "3"},
+        "echo four": {"uid": "4"},
+        "echo five": {"uid": "5"},
+    }
+
+    valid, invalid = table._parse_command_ids_input("1,3-5,2")
+
+    assert valid == [1, 3, 4, 5, 2]
+    assert invalid == []
+
+
+def test_parse_command_ids_input_dedupes_and_reports_invalid():
+    table = object.__new__(CommandTable)
+    table.commands = {
+        "echo one": {"uid": "1"},
+        "echo two": {"uid": "2"},
+        "echo three": {"uid": "3"},
+    }
+
+    valid, invalid = table._parse_command_ids_input("1,1,2-3,3-2,0,8,abc")
+
+    assert valid == [1, 2, 3]
+    assert set(invalid) == {"3-2", "0", "8", "abc"}
+
+
+def test_get_command_uids_accepts_valid_and_ignores_invalid(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {
+        "echo one": {"uid": "uid-1"},
+        "echo two": {"uid": "uid-2"},
+        "echo three": {"uid": "uid-3"},
+    }
+
+    monkeypatch.setattr(CommandTable, "show_table", lambda self: None)
+    monkeypatch.setattr(command_module.Prompt, "ask", lambda _: "1,4,2-3")
+
+    result = table.get_command_uids()
+
+    assert result == ["uid-1", "uid-2", "uid-3"]

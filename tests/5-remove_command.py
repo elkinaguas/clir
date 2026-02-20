@@ -1,4 +1,4 @@
-from clir.cli import rm, cp
+from clir.cli import rm, cp, new
 from clir.utils.db import get_command_id_from_command, get_tag_id_from_tag, DbIntegrity
 from click.testing import CliRunner
 import pyperclip, os
@@ -65,6 +65,43 @@ def test_remove_command_not_found():
     assert result.exit_code == 1
     assert "ID not valid" in result.output
     assert len(cids) == len(cids2)
+
+
+def test_remove_commands_bulk_with_range_and_commas():
+    runner = CliRunner()
+
+    add_one = runner.invoke(
+        new,
+        [
+            "-c",
+            "bulk-delete-command-1",
+            "-d",
+            "Bulk delete command one",
+            "-t",
+            "bulk-delete-tag",
+        ],
+    )
+    add_two = runner.invoke(
+        new,
+        [
+            "-c",
+            "bulk-delete-command-2",
+            "-d",
+            "Bulk delete command two",
+            "-t",
+            "bulk-delete-tag",
+        ],
+    )
+
+    assert add_one.exit_code == 0
+    assert add_two.exit_code == 0
+
+    remove_result = runner.invoke(rm, ["-t", "bulk-delete-tag"], input="1-2\nn\n")
+
+    assert remove_result.exit_code == 0
+
+    copy_result = runner.invoke(cp, ["-t", "bulk-delete-tag"], input="1\n")
+    assert copy_result.exit_code == 1
 
 def db_integrity_check():
     db_integrity = DbIntegrity()

@@ -21,7 +21,7 @@ def new(command, description, tag):
     new_command = Command(command = command, description = description, tag = tag)
     new_command.save_command()
 
-@cli.command(help="Remove command 👋")
+@cli.command(help="Remove command(s) 👋. In the prompt you can use IDs like 1,3-5")
 @click.option('-t', '--tag', help="Search by tag")
 @click.option('-g', '--grep', help="Search by grep")
 def rm(tag: str = "", grep: str = ""):

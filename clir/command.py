@@ -231,25 +231,88 @@ class CommandTable:
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):
-
-        uid = self.get_command_uid()
+        uids = self.get_command_uids()
         tag_uids = [tag[0] for tag in get_tags_db()]
 
-        remove_command_db(uid)
-        #verify_command_id_exists(uid)
-        #verify_command_id_tag_relation_exists(uid)
+        for uid in uids:
+            remove_command_db(uid)
 
-        if verify_command_id_exists(uid):
-            print(f'Command not removed')
-        elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
-            print(f'Command removed successfuly but relation to tag not removed')
-        elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
-            print(f'Command removed successfuly')
+            if verify_command_id_exists(uid):
+                print('Command not removed')
+            elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
+                print('Command removed successfuly but relation to tag not removed')
+            elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
+                print('Command removed successfuly')
         
         remove_tag_if_no_commands(tag_uids)
         
 
 
+
+    def _parse_command_ids_input(self, command_ids_input: str):
+        selected_indexes = []
+        invalid_tokens = []
+
+        for token in command_ids_input.split(','):
+            clean_token = token.strip()
+
+            if not clean_token:
+                continue
+
+            if '-' in clean_token:
+                range_match = re.fullmatch(r'(\d+)\s*-\s*(\d+)', clean_token)
+                if not range_match:
+                    invalid_tokens.append(clean_token)
+                    continue
+
+                start = int(range_match.group(1))
+                end = int(range_match.group(2))
+
+                if start > end:
+                    invalid_tokens.append(clean_token)
+                    continue
+
+                for index in range(start, end + 1):
+                    selected_indexes.append(index)
+                continue
+
+            if clean_token.isdigit():
+                selected_indexes.append(int(clean_token))
+            else:
+                invalid_tokens.append(clean_token)
+
+        deduped_indexes = []
+        seen = set()
+        for index in selected_indexes:
+            if index not in seen:
+                deduped_indexes.append(index)
+                seen.add(index)
+
+        valid_indexes = []
+        for index in deduped_indexes:
+            if index < 1 or index > len(self.commands):
+                invalid_tokens.append(str(index))
+                continue
+            valid_indexes.append(index)
+
+        return valid_indexes, invalid_tokens
+
+    def get_command_uids(self):
+        self.show_table()
+
+        command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5)")
+
+        while True:
+            valid_indexes, invalid_tokens = self._parse_command_ids_input(command_ids_input)
+
+            if valid_indexes:
+                if invalid_tokens:
+                    print(f"Ignoring invalid IDs: {', '.join(invalid_tokens)}")
+
+                return [self.commands[list(self.commands.keys())[index - 1]]["uid"] for index in valid_indexes]
+
+            print("ID not valid")
+            command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5)")
 
     def get_command_uid(self):
         self.show_table()
