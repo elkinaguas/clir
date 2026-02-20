@@ -305,9 +305,12 @@ class CommandTable:
     def get_command_uids(self):
         self.show_table()
 
-        command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5)")
+        command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5), or all")
 
         while True:
+            if command_ids_input.strip().lower() == "all":
+                return [self.commands[command]["uid"] for command in self.commands]
+
             valid_indexes, invalid_tokens = self._parse_command_ids_input(command_ids_input)
 
             if valid_indexes:
@@ -317,7 +320,7 @@ class CommandTable:
                 return [self.commands[list(self.commands.keys())[index - 1]]["uid"] for index in valid_indexes]
 
             print("ID not valid")
-            command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5)")
+            command_ids_input = Prompt.ask("Enter command ID(s), comma-separated and/or ranges (e.g. 1,3-5), or all")
 
     def get_command_uid(self):
         self.show_table()

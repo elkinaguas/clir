@@ -243,3 +243,19 @@ def test_get_command_uids_accepts_valid_and_ignores_invalid(monkeypatch):
     result = table.get_command_uids()
 
     assert result == ["uid-1", "uid-2", "uid-3"]
+
+
+def test_get_command_uids_accepts_all_as_standalone(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {
+        "echo one": {"uid": "uid-1"},
+        "echo two": {"uid": "uid-2"},
+        "echo three": {"uid": "uid-3"},
+    }
+
+    monkeypatch.setattr(CommandTable, "show_table", lambda self: None)
+    monkeypatch.setattr(command_module.Prompt, "ask", lambda _: "all")
+
+    result = table.get_command_uids()
+
+    assert result == ["uid-1", "uid-2", "uid-3"]

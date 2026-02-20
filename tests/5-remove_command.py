@@ -105,6 +105,45 @@ def test_remove_commands_bulk_with_range_and_commas():
     copy_result = runner.invoke(cp, ["-t", "bulk-delete-tag"], input="1\n")
     assert copy_result.exit_code == 1
 
+
+def test_remove_commands_bulk_with_all_keyword():
+    runner = CliRunner()
+
+    add_one = runner.invoke(
+        new,
+        [
+            "-c",
+            "bulk-all-command-1",
+            "-d",
+            "Bulk all command one",
+            "-t",
+            "bulk-all-tag",
+        ],
+    )
+    add_two = runner.invoke(
+        new,
+        [
+            "-c",
+            "bulk-all-command-2",
+            "-d",
+            "Bulk all command two",
+            "-t",
+            "bulk-all-tag",
+        ],
+    )
+
+    assert add_one.exit_code == 0
+    assert add_two.exit_code == 0
+
+    remove_result = runner.invoke(rm, ["-t", "bulk-all-tag"], input="all\nn\n")
+
+    assert remove_result.exit_code == 0
+    assert "Command bulk-all-command-1 removed successfuly." in remove_result.output
+    assert "Command bulk-all-command-2 removed successfuly." in remove_result.output
+
+    copy_result = runner.invoke(cp, ["-t", "bulk-all-tag"], input="1\n")
+    assert copy_result.exit_code == 1
+
 def db_integrity_check():
     db_integrity = DbIntegrity()
     #commands_ids, commands, tags_ids, tags, cid_relation (commands ids in commands_tags table), tid_relation (commands ids in commands_tags table)
