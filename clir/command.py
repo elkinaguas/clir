@@ -240,11 +240,14 @@ class CommandTable:
             remove_command_db(uid)
 
             if verify_command_id_exists(uid):
-                print(f'Command {command_name} not removed.')
+                print(f'Command [bold green]{command_name}[/bold green] not removed.')
             elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
-                print(f'Command {command_name} removed successfuly but relation to tag not removed.')
+                print(
+                    f'Command [bold green]{command_name}[/bold green] '
+                    'removed successfuly but relation to tag not removed.'
+                )
             elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
-                print(f'Command {command_name} removed successfuly.')
+                print(f'Command [bold green]{command_name}[/bold green] removed successfuly.')
         
         remove_tag_if_no_commands(tag_uids)
         
