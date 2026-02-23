@@ -3,6 +3,12 @@
 
 Clir provides a clear and fast way to store and recover your commands.
 
+## What's new in 0.9.0
+- Bulk remove supports comma-separated IDs and ranges (for example `1,3-5`).
+- Remove flow supports `all` to delete all commands shown in the filtered table.
+- Remove confirmation now includes the command name for each deleted command.
+- Test suite and CI coverage were expanded with new branch and integration tests.
+
 ## Installation
 Install `clir` using pip3 and pipx.
 
