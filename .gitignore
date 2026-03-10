@@ -161,3 +161,15 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# OpenCode vibecode template artifacts
+MainPROMPT.md
+PROMPT_PLANNER.md
+PROMPT_BUILDER.md
+PROMPT_REVIEWER.md
+PROMPT_SECURITY.md
+SPEC.md
+TASKS.md
+.opencode/opencode.json
+docs/architecture.md
+docs/app.md
