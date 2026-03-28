@@ -51,10 +51,12 @@ class Command:
 
 #Create class Table
 class CommandTable:
-    def __init__(self, tag: str = "", grep: str = ""):
+    def __init__(self, tag: str = "", grep: str = "", tag_grep: str = ""):
         self.commands = transform_commands_to_json(get_commands_db(tag = tag, grep = grep))
+        self.tags = get_tags_db(grep=tag_grep) if tag_grep else []
         self.tag = tag
         self.grep = grep
+        self.tag_grep = tag_grep
 
     def __str__(self):
         return f"{self.command} {self.description} {self.tag}"
@@ -158,13 +160,14 @@ class CommandTable:
                 print("OS not supported")
     
     def show_tags(self):
-        current_commands = self.commands
+        if getattr(self, "tag_grep", ""):
+            tags = [tag_row[3] for tag_row in getattr(self, "tags", [])]
+        else:
+            tags = []
+            for command in self.commands:
+                tags.append(self.commands[command]["tag"])
 
-        tags = []
-        for command in current_commands:
-            tags.append(current_commands[command]["tag"])
-        
-        tags = list(dict.fromkeys(tags))
+            tags = list(dict.fromkeys(tags))
 
         table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
         table.add_column("Tags 🏷️", style="cyan bold")
@@ -203,6 +206,7 @@ class CommandTable:
             else:
                 raise FileNotFoundError(f"File '{import_file_path}' could not be found")
 
+            import_commands = self._validate_import_commands_payload(import_commands)
 
             for command, data in import_commands.items():
                 if command in existing_commands.keys() \
@@ -214,7 +218,7 @@ class CommandTable:
                 elif command in existing_commands.keys() \
                 and (data['description'] != existing_commands[command]["description"] or data['tag'] != existing_commands[command]["tag"]):
                     import_choice = ""
-                    print("The command [bold green]{command}[/bold green] already exists in the database:")
+                    print(f"The command [bold green]{command}[/bold green] already exists in the database:")
                     print(data)
                     table = Table(show_lines=True, box=box.ROUNDED, style="grey46")
                     table.add_column("", style="white bold", no_wrap=True)
@@ -254,6 +258,28 @@ class CommandTable:
             print("Import complete")
         else:
             print("No file was passed to import")
+
+    def _validate_import_commands_payload(self, import_commands):
+        required_keys = {"description", "tag", "creation_date", "last_modif_date"}
+
+        if not isinstance(import_commands, dict):
+            raise ValueError("Import payload must be a JSON object mapping commands to metadata")
+
+        for command, data in import_commands.items():
+            if not isinstance(command, str) or not command:
+                raise ValueError("Import payload commands must be non-empty strings")
+
+            if not isinstance(data, dict):
+                raise ValueError(f"Import payload for command '{command}' must be an object")
+
+            missing_keys = sorted(required_keys - data.keys())
+            if missing_keys:
+                missing = ", ".join(missing_keys)
+                raise ValueError(
+                    f"Import payload for command '{command}' is missing required key(s): {missing}"
+                )
+
+        return import_commands
 
     # Create a function that deletes a command when passing its uid
     def remove_command(self):

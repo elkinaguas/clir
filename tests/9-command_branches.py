@@ -250,6 +250,52 @@ def test_copy_command_shows_clipboard_failure_on_darwin(monkeypatch):
     ]
 
 
+def test_copy_command_shows_oserror_failure_on_linux(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {"echo hello": {"uid": "uid-1"}}
+
+    messages = []
+
+    def fail(*args, **kwargs):
+        raise OSError("xclip unavailable")
+
+    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(command_module.platform, "system", lambda: "Linux")
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(command_module.subprocess, "run", fail)
+    monkeypatch.setattr(command_module, "print", lambda *args, **kwargs: messages.append(args[0]))
+
+    table.copy_command()
+
+    assert messages == [
+        "Copying command: echo hello",
+        "xclip failed to copy the command. Please verify clipboard access and try again",
+    ]
+
+
+def test_copy_command_shows_oserror_failure_on_darwin(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {"echo hello": {"uid": "uid-1"}}
+
+    messages = []
+
+    def fail(*args, **kwargs):
+        raise OSError("pbcopy unavailable")
+
+    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(command_module.platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(command_module.subprocess, "run", fail)
+    monkeypatch.setattr(command_module, "print", lambda *args, **kwargs: messages.append(args[0]))
+
+    table.copy_command()
+
+    assert messages == [
+        "Copying command: echo hello",
+        "pbcopy failed to copy the command. Please verify clipboard access and try again",
+    ]
+
+
 def test_show_tags_renders_unique_tags(monkeypatch):
     table = object.__new__(CommandTable)
     table.commands = {

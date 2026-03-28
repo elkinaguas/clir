@@ -13,8 +13,9 @@ def test_tags_command_calls_show_tags(monkeypatch):
     calls = {}
 
     class FakeTable:
-        def __init__(self, tag="", grep=""):
+        def __init__(self, tag="", grep="", tag_grep=""):
             calls["grep"] = grep
+            calls["tag_grep"] = tag_grep
 
         def show_tags(self):
             calls["show_tags"] = True
@@ -29,7 +30,8 @@ def test_tags_command_calls_show_tags(monkeypatch):
 
     assert result.exit_code == 0
     assert calls["init"] == 1
-    assert calls["grep"] == "ops"
+    assert calls["grep"] == ""
+    assert calls["tag_grep"] == "ops"
     assert calls["show_tags"] is True
 
 

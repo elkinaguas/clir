@@ -11,9 +11,9 @@ def cli():
     pass
 
 
-def _get_command_table(tag: str = "", grep: str = "") -> CommandTable:
+def _get_command_table(tag: str = "", grep: str = "", tag_grep: str = "") -> CommandTable:
     init_config()
-    return CommandTable(tag=tag, grep=grep)
+    return CommandTable(tag=tag, grep=grep, tag_grep=tag_grep)
 
 
 def _prompt_import_file(file_path: str = "") -> str:
@@ -59,7 +59,7 @@ def cp(tag: str = "", grep: str = ""):
 @cli.command(help="Show tags 🏷️")
 @click.option('-g', '--grep', help="Search by grep")
 def tags(grep: str = ""):
-    _get_command_table(grep=grep).show_tags()
+    _get_command_table(tag_grep=grep).show_tags()
 
 @cli.command(help="Import commands from file 🤓")
 @click.option('-f', '--file', help="Search by grep")

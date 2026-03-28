@@ -11,6 +11,16 @@ def test_create_config_files_creates_commands_json(monkeypatch, tmp_path):
     assert commands_file.read_text(encoding="utf-8") == "{}"
 
 
+def test_check_config_uses_current_home_at_call_time(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    clir_dir = tmp_path / ".clir"
+    clir_dir.mkdir(parents=True)
+    (clir_dir / "clir.db").write_text("db", encoding="utf-8")
+    (clir_dir / "clir.conf").write_text("conf", encoding="utf-8")
+
+    assert config_module.check_config() is True
+
+
 def test_create_config_files_keeps_existing_commands_json(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
     clir_dir = tmp_path / ".clir"
@@ -21,6 +31,14 @@ def test_create_config_files_keeps_existing_commands_json(monkeypatch, tmp_path)
     config_module.create_config_files()
 
     assert commands_file.read_text(encoding="utf-8") == '{"existing": true}'
+
+
+def test_copy_config_files_uses_current_home_at_call_time(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    config_module.copy_config_files()
+
+    assert (tmp_path / ".clir" / "clir.conf").exists()
 
 
 def test_init_config_returns_when_setup_cannot_be_completed(monkeypatch):
