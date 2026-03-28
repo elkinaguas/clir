@@ -1,6 +1,5 @@
 import os
 import shutil
-import subprocess
 from pathlib import Path
 from clir.utils.db import create_database
 from clir.utils.core import get_commands
@@ -101,18 +100,8 @@ def init_config():
         return
     
 
-def verify_xclip_installation(package: str = ""):
-    if package == "xclip":
-        try:
-            subprocess.run(["xclip", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return True
-        except:
-            return False
-    if package == "pbcopy":
-        try:
-            subprocess.run(["which", "pbcopy"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return True
-        except:
-            return False
-    
-    return "No package specified"
+def verify_clipboard_tool_installation(package: str = ""):
+    if package in {"xclip", "pbcopy"}:
+        return shutil.which(package) is not None
+
+    return False

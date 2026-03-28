@@ -4,15 +4,14 @@ import json
 import uuid
 import platform
 import subprocess
-from datetime import datetime
 from rich import box
 from rich import print
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
-from clir.utils.config import verify_xclip_installation
-from clir.utils.core import get_commands, replace_arguments, transform_commands_to_json, remove_tag_if_no_commands
-from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db, get_tag_id_from_command_id, get_tags_db
+from clir.utils.config import verify_clipboard_tool_installation
+from clir.utils.core import replace_arguments, transform_commands_to_json, remove_tag_if_no_commands
+from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db, get_tags_db
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -101,8 +100,15 @@ class CommandTable:
         command = replace_arguments(command)
         if uid and command:
             print(f'[bold green]Running command:[/bold green] {command}')
-            os.system(command)
-            subprocess.Popen(['bash', '-ic', 'set -o history; history -s "$1"', '_', command])
+            subprocess.run(command, shell=True, check=False)
+            try:
+                subprocess.Popen(
+                    ['bash', '-ic', 'set -o history; history -s "$1"', '_', command],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except OSError:
+                pass
     
     def copy_command(self):
         current_commands = self.commands
@@ -118,15 +124,28 @@ class CommandTable:
             print(f'Copying command: {command}')
             if platform.system() == "Darwin":
                 # Verify that pbcopy is installed
-                if verify_xclip_installation(package = "pbcopy"):
-                    os.system(f'printf "{command}" | pbcopy')
+                if verify_clipboard_tool_installation(package = "pbcopy"):
+                    try:
+                        subprocess.run(["pbcopy"], input=command, text=True, check=True)
+                    except (subprocess.CalledProcessError, OSError):
+                        print("pbcopy failed to copy the command. Please verify clipboard access and try again")
+                        return
                 else:
                     print("pbcopy is not installed, this command needs pbcopy to work properly")
                     return
             elif platform.system() == "Linux" or platform.system().startswith("CYGWIN"):
                 # Verify that xclip is installed
-                if verify_xclip_installation(package = "xclip"):
-                    os.system(f'echo -n "{command}" | xclip -selection clipboard')
+                if verify_clipboard_tool_installation(package = "xclip"):
+                    try:
+                        subprocess.run(
+                            ["xclip", "-selection", "clipboard"],
+                            input=command,
+                            text=True,
+                            check=True,
+                        )
+                    except (subprocess.CalledProcessError, OSError):
+                        print("xclip failed to copy the command. Please verify clipboard access and try again")
+                        return
                 else:
                     print("xclip is not installed, this command needs xclip to work properly")
                     return
@@ -157,7 +176,7 @@ class CommandTable:
             with open("commands.json", "w") as commands_file:
                 json.dump(self.commands, commands_file)
             print(f"[bold green]Commands exported succesfully[/bold green] to {os.getcwd()}/commands.json")
-        except:
+        except OSError:
             print("[bold red]Commands could not be exported[/bold red]")
             raise
     
@@ -172,8 +191,10 @@ class CommandTable:
                     with open(import_file_path, 'r') as import_file:
                         print(f"Importing commands from {import_file_path}...")
                         import_commands =  json.load(import_file)
-                except Exception as e:
-                    raise Exception(f"Un error ocurred while reading the file '{import_file_path}'")
+                except (OSError, json.JSONDecodeError) as exc:
+                    raise ValueError(
+                        f"An error occurred while reading the file '{import_file_path}': {exc}"
+                    ) from exc
             else:
                 raise FileNotFoundError(f"File '{import_file_path}' could not be found")
 
