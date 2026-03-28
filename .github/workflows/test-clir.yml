@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
@@ -18,24 +21,24 @@ jobs:
         python-version: ["3.9","3.10","3.11"]
         
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install xclip
         if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
-          sudo apt-get install xorg openbox
+          sudo apt-get install -y xorg openbox
           sudo apt-get install -y xclip xsel
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==2.2.1
       - name: Install dependencies
         run: |
           poetry install
       - name: Test with pytest
         run: |
-          poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py
+          poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py tests/9-command_branches.py tests/10-import_export_edges.py tests/12-config_utils.py tests/13-db_utils.py tests/14-cli_branches.py

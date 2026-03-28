@@ -1,31 +1,44 @@
-import os
+import importlib.resources
 import shutil
 from pathlib import Path
-from clir.utils.db import create_database
+
 from clir.utils.core import get_commands
+from clir.utils.db import create_database
 from clir.utils.db import insert_command_db
-import importlib.resources
 
 config_directory = "clir/config/"
-env_path = Path('~').expanduser() / Path(".clir")
+
+
+def _env_path() -> Path:
+    return Path.home() / ".clir"
+
+
+def _commands_json_path() -> Path:
+    return _env_path() / "commands.json"
+
+
+def _config_file_path() -> Path:
+    return _env_path() / "clir.conf"
+
+
+def _db_file_path() -> Path:
+    return _env_path() / "clir.db"
 
 def check_config():
-    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-    db_file_path = os.path.join(dir_path, 'clir.db')
-    config_file_path = os.path.join(dir_path, 'clir.conf')
-
-    return os.path.exists(db_file_path) and os.path.exists(config_file_path)
+    return _db_file_path().exists() and _config_file_path().exists()
 
 def back_json_commands():
-    source_file = f"{env_path}/commands.json"
-    destination_file = f"{env_path}/commands.json.backup"
+    source_file = _commands_json_path()
+    destination_file = _env_path() / "commands.json.backup"
 
     shutil.copyfile(source_file, destination_file)
 
     print(f"Backup of json commands stored in {source_file} to {destination_file} complete.")
 
 def migrate_json_to_sqlite():
-    if os.path.exists(f"{env_path}/commands.json"):
+    commands_json_path = _commands_json_path()
+
+    if commands_json_path.exists():
         back_json_commands()
         print("Migrating json stored commands to sqlite database...")
         
@@ -38,21 +51,21 @@ def migrate_json_to_sqlite():
             insert_command_db(command, data['description'], data['tag'])
             print("---")
 
-        os.remove(f"{env_path}/commands.json")
+        commands_json_path.unlink()
         print("Migration complete")
 
 
 def create_config_files():
-    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-    os.makedirs(dir_path, exist_ok=True)
+    dir_path = _env_path()
+    dir_path.mkdir(parents=True, exist_ok=True)
     
     # Define the file path and name
     files = ['commands.json']
 
     # Check if the file already exists
     for file in files:
-        file_path = os.path.join(dir_path, file)
-        if not os.path.exists(file_path):
+        file_path = dir_path / file
+        if not file_path.exists():
             # Create the file
             with open(file_path, 'w') as file_object:
                 file_object.write('{}')
@@ -62,25 +75,25 @@ def create_config_files():
             print(f'A clir environment already exists in "{dir_path}".')
 
 def copy_config_files():
-    dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-    os.makedirs(dir_path, exist_ok=True)
+    dir_path = _env_path()
+    dir_path.mkdir(parents=True, exist_ok=True)
     
     # Define the file path and name
     files = ['clir.conf']
 
     # Check if the file already exists
-    for file in files:
+    for file_name in files:
         with importlib.resources.open_text('clir.config', 'clir.conf') as f:
             conf = f.read()
-            with open(f"{env_path}/{file}", "w") as file:
-                file.write(conf)
+            with open(dir_path / file_name, "w") as file_object:
+                file_object.write(conf)
 
-        print(f"Copying {file} file to {env_path}")
+        print(f"Copying {file_name} file to {dir_path}")
 
 def init_config():
     if not check_config():
-        dir_path = os.path.join(os.path.expanduser('~'), '.clir')
-        os.makedirs(dir_path, exist_ok=True)
+        dir_path = _env_path()
+        dir_path.mkdir(parents=True, exist_ok=True)
 
         print("Setting up initial configuration")
         print("Creating database...")

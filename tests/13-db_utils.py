@@ -33,6 +33,15 @@ def test_insert_command_db_sets_last_modif_when_only_creation_date(monkeypatch, 
     assert last_modif_date
 
 
+def test_db_connection_enables_foreign_keys(monkeypatch, tmp_path):
+    temp_db = _setup_temp_db(monkeypatch, tmp_path)
+
+    with db_module._db_connection(temp_db) as conn:
+        pragma_value = conn.execute("PRAGMA foreign_keys").fetchone()[0]
+
+    assert pragma_value == 1
+
+
 def test_insert_command_db_sets_creation_when_only_last_modif_date(monkeypatch, tmp_path):
     temp_db = _setup_temp_db(monkeypatch, tmp_path)
 
@@ -113,3 +122,17 @@ def test_get_tag_id_from_tag_returns_empty_when_missing(monkeypatch, tmp_path):
     _setup_temp_db(monkeypatch, tmp_path)
 
     assert db_module.get_tag_id_from_tag("missing-tag") == ""
+
+
+def test_get_tag_from_tag_id_returns_empty_when_missing(monkeypatch, tmp_path):
+    _setup_temp_db(monkeypatch, tmp_path)
+
+    assert db_module.get_tag_from_tag_id(()) == ""
+
+
+def test_get_tag_from_tag_id_accepts_string(monkeypatch, tmp_path):
+    _setup_temp_db(monkeypatch, tmp_path)
+
+    tag_uuid = db_module.insert_tag("ops")
+
+    assert db_module.get_tag_from_tag_id(tag_uuid) == "ops"

@@ -99,8 +99,8 @@ def test_remove_commands_bulk_with_range_and_commas():
     remove_result = runner.invoke(rm, ["-t", "bulk-delete-tag"], input="1-2\nn\n")
 
     assert remove_result.exit_code == 0
-    assert "Command bulk-delete-command-1 removed successfuly." in remove_result.output
-    assert "Command bulk-delete-command-2 removed successfuly." in remove_result.output
+    assert "Command bulk-delete-command-1 removed successfully." in remove_result.output
+    assert "Command bulk-delete-command-2 removed successfully." in remove_result.output
 
     copy_result = runner.invoke(cp, ["-t", "bulk-delete-tag"], input="1\n")
     assert copy_result.exit_code == 1
@@ -138,8 +138,8 @@ def test_remove_commands_bulk_with_all_keyword():
     remove_result = runner.invoke(rm, ["-t", "bulk-all-tag"], input="all\nn\n")
 
     assert remove_result.exit_code == 0
-    assert "Command bulk-all-command-1 removed successfuly." in remove_result.output
-    assert "Command bulk-all-command-2 removed successfuly." in remove_result.output
+    assert "Command bulk-all-command-1 removed successfully." in remove_result.output
+    assert "Command bulk-all-command-2 removed successfully." in remove_result.output
 
     copy_result = runner.invoke(cp, ["-t", "bulk-all-tag"], input="1\n")
     assert copy_result.exit_code == 1

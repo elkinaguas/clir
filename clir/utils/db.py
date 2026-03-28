@@ -12,8 +12,17 @@ db_file_name = "clir.db"
 sql_schema_path = Path(schema_directory) / schema_file_name
 db_user_version = 1
 
-env_path = Path('~').expanduser() / Path(".clir")
-db_file = Path(env_path) / db_file_name
+
+
+def _env_path() -> Path:
+    return Path.home() / ".clir"
+
+
+def _default_db_file() -> Path:
+    return _env_path() / db_file_name
+
+
+db_file = None
 
 
 def _timestamp_now() -> str:
@@ -22,8 +31,10 @@ def _timestamp_now() -> str:
 
 @contextmanager
 def _db_connection(database_name=None):
-    connection = sqlite3.connect(database_name or db_file)
+    database_path = database_name or db_file or _default_db_file()
+    connection = sqlite3.connect(database_path)
     try:
+        connection.execute("PRAGMA foreign_keys = ON")
         yield connection
         connection.commit()
     except Exception:
@@ -237,8 +248,23 @@ def get_tag_id_from_command_id(command_id):
     return _fetchone("SELECT * FROM commands_tags WHERE command_id = ?", (command_id,))
 
 def get_tag_from_tag_id(tag_id):
-    query = _select_ids_query("tags", "tag", tag_id)
-    return _fetchall(query, tuple(tag_id))[0][0]
+    if isinstance(tag_id, str):
+        tag_values = (tag_id,)
+    elif isinstance(tag_id, (list, tuple)):
+        tag_values = tuple(tag_id)
+    else:
+        raise TypeError("tag_id must be a string, list, or tuple")
+
+    if not tag_values:
+        return ""
+
+    query = _select_ids_query("tags", "tag", tag_values)
+    tag_rows = _fetchall(query, tag_values)
+
+    if not tag_rows:
+        return ""
+
+    return tag_rows[0][0]
 
 def get_tag_id_from_tag(tag):
     tag_row = _fetchone("SELECT id FROM tags WHERE tag = ?", (tag,))
