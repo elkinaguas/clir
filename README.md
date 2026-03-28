@@ -1,5 +1,5 @@
 # clir
-[![PyPI](https://img.shields.io/pypi/v/clir)](https://github.com/elkinaguas/clir/releases) ![PyPI - Downloads](https://img.shields.io/pypi/dm/clir) ![Total Download](https://static.pepy.tech/badge/clir)
+[![PyPI](https://img.shields.io/pypi/v/clir)](https://pypi.org/project/clir/) ![PyPI - Downloads](https://img.shields.io/pypi/dm/clir) ![Total Download](https://static.pepy.tech/badge/clir)
 
 Clir provides a clear and fast way to store and recover your commands.
 
@@ -10,23 +10,24 @@ Clir provides a clear and fast way to store and recover your commands.
 - Test suite and CI coverage were expanded with new branch and integration tests.
 
 ## Installation
-Install `clir` using pip3 and pipx.
+`clir` supports Python 3.9+.
 
-```bash
-pip3 install clir
-```
+Recommended:
 
 ```bash
 pipx install clir
 ```
 
-## Usage
-First of all, initialize clir. This will create the necessary cofig files.
+Alternative:
+
 ```bash
-clir init
+pip install clir
 ```
 
-See all the obption available with
+## Usage
+`clir` initializes automatically the first time you run a real command.
+
+See all the options available with
 ```bash
 clir --help
 ```
