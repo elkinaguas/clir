@@ -194,7 +194,7 @@ class CommandTable:
             existing_commands = self.commands
 
 
-            if os.path.exists(import_file_path):
+            if os.path.isfile(import_file_path):
                 try:
                     with open(import_file_path, 'r') as import_file:
                         print(f"Importing commands from {import_file_path}...")
@@ -261,6 +261,7 @@ class CommandTable:
 
     def _validate_import_commands_payload(self, import_commands):
         required_keys = {"description", "tag", "creation_date", "last_modif_date"}
+        string_keys = {"description", "tag", "creation_date", "last_modif_date"}
 
         if not isinstance(import_commands, dict):
             raise ValueError("Import payload must be a JSON object mapping commands to metadata")
@@ -278,6 +279,13 @@ class CommandTable:
                 raise ValueError(
                     f"Import payload for command '{command}' is missing required key(s): {missing}"
                 )
+
+            for key in string_keys:
+                value = data[key]
+                if not isinstance(value, str):
+                    raise ValueError(
+                        f"Import payload for command '{command}' has invalid value for '{key}': expected a string"
+                    )
 
         return import_commands
 

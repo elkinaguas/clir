@@ -62,6 +62,29 @@ def test_import_commands_raises_for_non_object_command_metadata(tmp_path):
         table.import_commands(str(invalid_file))
 
 
+def test_import_commands_raises_for_non_string_metadata_values(tmp_path):
+    table = object.__new__(CommandTable)
+    table.commands = {}
+
+    invalid_file = tmp_path / "broken.json"
+    invalid_file.write_text(
+        json.dumps(
+            {
+                "echo hi": {
+                    "description": ["not", "a", "string"],
+                    "tag": "ops",
+                    "creation_date": "2023-01-01 00:00:00.000",
+                    "last_modif_date": "2023-01-01 00:00:00.000",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="has invalid value for 'description': expected a string"):
+        table.import_commands(str(invalid_file))
+
+
 def test_import_existing_command_with_no_changes_skips_write(tmp_path, monkeypatch):
     table = object.__new__(CommandTable)
     table.commands = {

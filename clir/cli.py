@@ -62,7 +62,7 @@ def tags(grep: str = ""):
     _get_command_table(tag_grep=grep).show_tags()
 
 @cli.command(help="Import commands from file 🤓")
-@click.option('-f', '--file', help="Search by grep")
+@click.option('-f', '--file', help="Import file path")
 def imports(file: str = ""):
     init_config()
     CommandTable().import_commands(import_file_path=_prompt_import_file(file))

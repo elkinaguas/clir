@@ -30,7 +30,7 @@ jobs:
         if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
-          sudo apt-get install xorg openbox
+          sudo apt-get install -y xorg openbox
           sudo apt-get install -y xclip xsel
       - name: Install poetry
         run: |
@@ -41,4 +41,4 @@ jobs:
           poetry install
       - name: Test with pytest
         run: |
-          poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py
+          poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py tests/9-command_branches.py tests/10-import_export_edges.py tests/12-config_utils.py tests/13-db_utils.py tests/14-cli_branches.py
