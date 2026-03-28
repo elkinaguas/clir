@@ -65,7 +65,10 @@ def tags(grep: str = ""):
 @click.option('-f', '--file', help="Import file path")
 def imports(file: str = ""):
     init_config()
-    CommandTable().import_commands(import_file_path=_prompt_import_file(file))
+    try:
+        CommandTable().import_commands(import_file_path=_prompt_import_file(file))
+    except (FileNotFoundError, ValueError) as exc:
+        raise click.ClickException(str(exc)) from exc
 
 @cli.command(help="Export commands to file 📤")
 @click.option('-t', '--tag', help="Search by tag")

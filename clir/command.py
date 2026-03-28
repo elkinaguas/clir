@@ -46,7 +46,7 @@ class Command:
 
         insert_command_db(command, desc, tag)
 
-        print(f'Command saved successfuly')
+        print('Command saved successfully')
 
 
 #Create class Table
@@ -183,7 +183,7 @@ class CommandTable:
         try:
             with open("commands.json", "w") as commands_file:
                 json.dump(self.commands, commands_file)
-            print(f"[bold green]Commands exported succesfully[/bold green] to {os.getcwd()}/commands.json")
+            print(f"[bold green]Commands exported successfully[/bold green] to {os.getcwd()}/commands.json")
         except OSError:
             print("[bold red]Commands could not be exported[/bold red]")
             raise
@@ -228,7 +228,7 @@ class CommandTable:
                     table.add_row("Description", data['description'], existing_commands[command]["description"])
                     table.add_row("Tag", data['tag'], existing_commands[command]["tag"])
                     table.add_row("Creation date", data['creation_date'], existing_commands[command]["creation_date"])
-                    table.add_row("Laste modification date", data['last_modif_date'], existing_commands[command]["last_modif_date"])
+                    table.add_row("Last modification date", data['last_modif_date'], existing_commands[command]["last_modif_date"])
                     console = Console()
                     console.print(table)
 
@@ -303,11 +303,11 @@ class CommandTable:
                 print(f'Command [bold green]{command_name}[/bold green] not removed.')
             elif not verify_command_id_exists(uid) and verify_command_id_tag_relation_exists(uid):
                 print(
-                    f'Command [bold green]{command_name}[/bold green] '
-                    'removed successfuly but relation to tag not removed.'
-                )
+                        f'Command [bold green]{command_name}[/bold green] '
+                        'removed successfully but relation to tag not removed.'
+                    )
             elif not verify_command_id_exists(uid) and not verify_command_id_tag_relation_exists(uid):
-                print(f'Command [bold green]{command_name}[/bold green] removed successfuly.')
+                print(f'Command [bold green]{command_name}[/bold green] removed successfully.')
         
         remove_tag_if_no_commands(tag_uids)
         

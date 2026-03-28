@@ -81,3 +81,45 @@ def test_settings_calls_init_config(monkeypatch):
 
     assert result.exit_code == 0
     assert calls["init"] == 1
+
+
+def test_imports_shows_click_error_for_missing_file(monkeypatch):
+    runner = CliRunner()
+    calls = {"init": 0}
+
+    class FakeTable:
+        def import_commands(self, import_file_path=""):
+            raise FileNotFoundError(f"File '{import_file_path}' could not be found")
+
+    def fake_init():
+        calls["init"] += 1
+
+    monkeypatch.setattr(cli_module, "init_config", fake_init)
+    monkeypatch.setattr(cli_module, "CommandTable", lambda: FakeTable())
+
+    result = runner.invoke(cli_module.imports, ["-f", "missing.json"])
+
+    assert result.exit_code == 1
+    assert calls["init"] == 1
+    assert "File 'missing.json' could not be found" in result.output
+
+
+def test_imports_shows_click_error_for_invalid_payload(monkeypatch):
+    runner = CliRunner()
+    calls = {"init": 0}
+
+    class FakeTable:
+        def import_commands(self, import_file_path=""):
+            raise ValueError("Import payload must be a JSON object mapping commands to metadata")
+
+    def fake_init():
+        calls["init"] += 1
+
+    monkeypatch.setattr(cli_module, "init_config", fake_init)
+    monkeypatch.setattr(cli_module, "CommandTable", lambda: FakeTable())
+
+    result = runner.invoke(cli_module.imports, ["-f", "broken.json"])
+
+    assert result.exit_code == 1
+    assert calls["init"] == 1
+    assert "Import payload must be a JSON object mapping commands to metadata" in result.output
