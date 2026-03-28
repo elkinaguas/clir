@@ -3,10 +3,27 @@ name = "clir"
 version = "0.9.0"
 description = "A clear and fast way to store and recover your commands"
 authors = ["Elkin Aguas <elkinaguas@gmail.com>"]
-license = "MIT License"
+license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/elkinaguas/clir"
 repository = "https://github.com/elkinaguas/clir"
+keywords = ["cli", "commands", "terminal", "productivity", "sqlite"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Terminals",
+    "Topic :: Utilities",
+]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/elkinaguas/clir/issues"
@@ -24,7 +41,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 clir = "clir.cli:cli"
-init_clir = 'clir.cli:init'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
