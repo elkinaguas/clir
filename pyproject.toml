@@ -12,11 +12,11 @@ repository = "https://github.com/elkinaguas/clir"
 "Bug Tracker" = "https://github.com/elkinaguas/clir/issues"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-rich = "^13.5.2"
+python = "^3.9"
+rich = "^14.3.0"
 click = "^8.1.7"
-rich-click = "^1.7.0"
-textual = "^0.47.1"
+rich-click = "^1.9.7"
+pygments = "2.19.2"
 
 [build-system]
 requires = ["poetry-core"]
