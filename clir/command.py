@@ -1,17 +1,27 @@
 import os
-import re
 import json
 import uuid
 import platform
+import re
 import subprocess
+
 from rich import box
 from rich import print
 from rich.console import Console
-from rich.table import Table
 from rich.prompt import Prompt
+from rich.table import Table
+
 from clir.utils.config import verify_clipboard_tool_installation
-from clir.utils.core import replace_arguments, transform_commands_to_json, remove_tag_if_no_commands
-from clir.utils.db import insert_command_db, get_commands_db, remove_command_db, verify_command_id_exists, verify_command_id_tag_relation_exists, modify_command_db, get_tags_db
+from clir.utils.core import remove_tag_if_no_commands, replace_arguments, transform_commands_to_json
+from clir.utils.db import (
+    get_commands_db,
+    get_tags_db,
+    insert_command_db,
+    modify_command_db,
+    remove_command_db,
+    verify_command_id_exists,
+    verify_command_id_tag_relation_exists,
+)
 
 class Command:
     def __init__(self, command: str = "", description: str = "", tag: str = ""):
@@ -27,8 +37,6 @@ class Command:
         return f"{self.command} {self.description} {self.tag}"
 
     def save_command(self):
-        current_commands = get_commands_db()
-
         command = self.command
         desc = self.description
         tag = self.tag
@@ -53,6 +61,13 @@ class CommandTable:
 
     def __repr__(self):
         return f"{self.command} {self.description} {self.tag}"
+
+    def _get_selected_command(self, uid: str) -> str:
+        for command, data in self.commands.items():
+            if data["uid"] == uid:
+                return command
+
+        return ""
 
     def show_table(self):
 
@@ -80,7 +95,7 @@ class CommandTable:
                 
             split_command.append(local_command)
             
-            display_command = " \ \n".join(split_command)
+            display_command = " \\ \n".join(split_command)
             table.add_row(str(indx+1), display_command, split_description, commands[command]["tag"])
 
         console = Console()
@@ -88,16 +103,11 @@ class CommandTable:
         print(f"Showing {str(len(commands))} commands")
     
     def run_command(self):
-        current_commands = self.commands
-
         uid = self.get_command_uid()
-        
-        command = ""
-        for c in current_commands:
-            if current_commands[c]["uid"] == uid:
-                command = c
-        
+
+        command = self._get_selected_command(uid)
         command = replace_arguments(command)
+
         if uid and command:
             print(f'[bold green]Running command:[/bold green] {command}')
             subprocess.run(command, shell=True, check=False)
@@ -111,15 +121,10 @@ class CommandTable:
                 pass
     
     def copy_command(self):
-        current_commands = self.commands
-
         uid = self.get_command_uid()
-        
-        command = ""
-        for c in current_commands:
-            if current_commands[c]["uid"] == uid:
-                command = c
-        
+
+        command = self._get_selected_command(uid)
+
         if uid:
             print(f'Copying command: {command}')
             if platform.system() == "Darwin":
