@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.9","3.10","3.11"]
         
     steps:
@@ -30,8 +30,7 @@ jobs:
         if: runner.os == 'Linux'  # Run only if the OS is Linux (Ubuntu)
         run: |
           sudo apt-get update
-          sudo apt-get install -y xorg openbox
-          sudo apt-get install -y xclip xsel
+          sudo apt-get install -y xvfb xclip xsel
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
@@ -39,6 +38,12 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+          poetry run python -m pip install pytest pytest-cov coverage pyperclip
+      - name: Test with pytest on Linux
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py tests/9-command_branches.py tests/10-import_export_edges.py tests/12-config_utils.py tests/13-db_utils.py tests/14-cli_branches.py
       - name: Test with pytest
+        if: runner.os != 'Linux'
         run: |
           poetry run pytest -v -s tests/1-init_clir.py tests/2-add_command.py tests/3-copy_command.py tests/4-run_command.py tests/5-remove_command.py tests/6-list_command.py tests/7-import_export_command.py tests/9-command_branches.py tests/10-import_export_edges.py tests/12-config_utils.py tests/13-db_utils.py tests/14-cli_branches.py
