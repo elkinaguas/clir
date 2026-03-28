@@ -1,3 +1,5 @@
+import subprocess
+
 from clir.command import Command
 from clir.command import CommandTable
 import clir.command as command_module
@@ -41,12 +43,16 @@ def test_copy_command_uses_pbcopy_on_darwin(monkeypatch):
     calls = []
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module.platform, "system", lambda: "Darwin")
-    monkeypatch.setattr(command_module, "verify_xclip_installation", lambda package: True)
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: calls.append(cmd))
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     table.copy_command()
 
-    assert calls == ['printf "echo hello" | pbcopy']
+    assert calls == [((['pbcopy'],), {'input': 'echo hello', 'text': True, 'check': True})]
 
 
 def test_copy_command_shows_missing_tool_on_linux(monkeypatch):
@@ -56,8 +62,12 @@ def test_copy_command_shows_missing_tool_on_linux(monkeypatch):
     calls = []
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module.platform, "system", lambda: "Linux")
-    monkeypatch.setattr(command_module, "verify_xclip_installation", lambda package: False)
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: calls.append(cmd))
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: False)
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     table.copy_command()
 
@@ -71,7 +81,11 @@ def test_copy_command_handles_unsupported_os(monkeypatch):
     calls = []
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module.platform, "system", lambda: "Windows")
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: calls.append(cmd))
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     table.copy_command()
 
@@ -87,17 +101,50 @@ def test_run_command_executes_replaced_command(monkeypatch):
 
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module, "replace_arguments", lambda cmd: "echo alice")
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: executed.append(cmd))
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: executed.append((args, kwargs)),
+    )
     monkeypatch.setattr(
         command_module.subprocess,
         "Popen",
-        lambda args: history_calls.append(args),
+        lambda *args, **kwargs: history_calls.append((args, kwargs)),
     )
 
     table.run_command()
 
-    assert executed == ["echo alice"]
-    assert history_calls == [["bash", "-ic", 'set -o history; history -s "$1"', "_", "echo alice"]]
+    assert executed == [(("echo alice",), {"shell": True, "check": False})]
+    assert history_calls == [
+        (
+            (["bash", "-ic", 'set -o history; history -s "$1"', "_", "echo alice"],),
+            {"stdout": command_module.subprocess.DEVNULL, "stderr": command_module.subprocess.DEVNULL},
+        )
+    ]
+
+
+def test_run_command_ignores_history_spawn_failure(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {"echo @name": {"uid": "uid-1"}}
+
+    executed = []
+
+    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(command_module, "replace_arguments", lambda cmd: "echo alice")
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: executed.append((args, kwargs)),
+    )
+
+    def fail_history(*args, **kwargs):
+        raise OSError("bash unavailable")
+
+    monkeypatch.setattr(command_module.subprocess, "Popen", fail_history)
+
+    table.run_command()
+
+    assert executed == [(("echo alice",), {"shell": True, "check": False})]
 
 
 def test_command_str_and_repr_include_fields():
@@ -124,8 +171,12 @@ def test_copy_command_shows_missing_pbcopy_on_darwin(monkeypatch):
     calls = []
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module.platform, "system", lambda: "Darwin")
-    monkeypatch.setattr(command_module, "verify_xclip_installation", lambda package: False)
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: calls.append(cmd))
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: False)
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     table.copy_command()
 
@@ -139,12 +190,64 @@ def test_copy_command_linux_uses_xclip_when_available(monkeypatch):
     calls = []
     monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
     monkeypatch.setattr(command_module.platform, "system", lambda: "Linux")
-    monkeypatch.setattr(command_module, "verify_xclip_installation", lambda package: True)
-    monkeypatch.setattr(command_module.os, "system", lambda cmd: calls.append(cmd))
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(
+        command_module.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     table.copy_command()
 
-    assert calls == ['echo -n "echo hello" | xclip -selection clipboard']
+    assert calls == [
+        ((['xclip', '-selection', 'clipboard'],), {'input': 'echo hello', 'text': True, 'check': True})
+    ]
+
+
+def test_copy_command_shows_clipboard_failure_on_linux(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {"echo hello": {"uid": "uid-1"}}
+
+    messages = []
+
+    def fail(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, ["xclip", "-selection", "clipboard"])
+
+    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(command_module.platform, "system", lambda: "Linux")
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(command_module.subprocess, "run", fail)
+    monkeypatch.setattr(command_module, "print", lambda *args, **kwargs: messages.append(args[0]))
+
+    table.copy_command()
+
+    assert messages == [
+        "Copying command: echo hello",
+        "xclip failed to copy the command. Please verify clipboard access and try again",
+    ]
+
+
+def test_copy_command_shows_clipboard_failure_on_darwin(monkeypatch):
+    table = object.__new__(CommandTable)
+    table.commands = {"echo hello": {"uid": "uid-1"}}
+
+    messages = []
+
+    def fail(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, ["pbcopy"])
+
+    monkeypatch.setattr(CommandTable, "get_command_uid", lambda self: "uid-1")
+    monkeypatch.setattr(command_module.platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(command_module, "verify_clipboard_tool_installation", lambda package: True)
+    monkeypatch.setattr(command_module.subprocess, "run", fail)
+    monkeypatch.setattr(command_module, "print", lambda *args, **kwargs: messages.append(args[0]))
+
+    table.copy_command()
+
+    assert messages == [
+        "Copying command: echo hello",
+        "pbcopy failed to copy the command. Please verify clipboard access and try again",
+    ]
 
 
 def test_show_tags_renders_unique_tags(monkeypatch):

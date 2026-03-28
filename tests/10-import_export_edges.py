@@ -22,7 +22,7 @@ def test_import_commands_raises_for_invalid_json(tmp_path):
     invalid_file = tmp_path / "broken.json"
     invalid_file.write_text("{ not-json", encoding="utf-8")
 
-    with pytest.raises(Exception, match="Un error ocurred while reading the file"):
+    with pytest.raises(ValueError, match="An error occurred while reading the file"):
         table.import_commands(str(invalid_file))
 
 

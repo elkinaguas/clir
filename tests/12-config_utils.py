@@ -43,35 +43,29 @@ def test_init_config_returns_when_setup_cannot_be_completed(monkeypatch):
     ]
 
 
-def test_verify_xclip_installation_xclip_true(monkeypatch):
-    monkeypatch.setattr(config_module.subprocess, "run", lambda *args, **kwargs: None)
+def test_verify_clipboard_tool_installation_xclip_true(monkeypatch):
+    monkeypatch.setattr(config_module.shutil, "which", lambda package: f"/usr/bin/{package}")
 
-    assert config_module.verify_xclip_installation("xclip") is True
-
-
-def test_verify_xclip_installation_xclip_false_on_error(monkeypatch):
-    def fail(*args, **kwargs):
-        raise RuntimeError("missing")
-
-    monkeypatch.setattr(config_module.subprocess, "run", fail)
-
-    assert config_module.verify_xclip_installation("xclip") is False
+    assert config_module.verify_clipboard_tool_installation("xclip") is True
 
 
-def test_verify_xclip_installation_pbcopy_true(monkeypatch):
-    monkeypatch.setattr(config_module.subprocess, "run", lambda *args, **kwargs: None)
+def test_verify_clipboard_tool_installation_xclip_false_on_error(monkeypatch):
+    monkeypatch.setattr(config_module.shutil, "which", lambda package: None)
 
-    assert config_module.verify_xclip_installation("pbcopy") is True
-
-
-def test_verify_xclip_installation_pbcopy_false_on_error(monkeypatch):
-    def fail(*args, **kwargs):
-        raise RuntimeError("missing")
-
-    monkeypatch.setattr(config_module.subprocess, "run", fail)
-
-    assert config_module.verify_xclip_installation("pbcopy") is False
+    assert config_module.verify_clipboard_tool_installation("xclip") is False
 
 
-def test_verify_xclip_installation_without_package_returns_message():
-    assert config_module.verify_xclip_installation() == "No package specified"
+def test_verify_clipboard_tool_installation_pbcopy_true(monkeypatch):
+    monkeypatch.setattr(config_module.shutil, "which", lambda package: f"/usr/bin/{package}")
+
+    assert config_module.verify_clipboard_tool_installation("pbcopy") is True
+
+
+def test_verify_clipboard_tool_installation_pbcopy_false_on_error(monkeypatch):
+    monkeypatch.setattr(config_module.shutil, "which", lambda package: None)
+
+    assert config_module.verify_clipboard_tool_installation("pbcopy") is False
+
+
+def test_verify_clipboard_tool_installation_without_package_returns_false():
+    assert config_module.verify_clipboard_tool_installation() is False
