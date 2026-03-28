@@ -24,7 +24,7 @@ It documents build/lint/test commands, single-test workflows, and repository cod
 If these files are added later, treat them as higher-priority constraints and update this document.
 
 ## Environment and Tooling
-- Python target: `^3.8`
+- Python target: `^3.9`
 - Dependency/build tool: Poetry
 - Test framework: `pytest`
 - CLI framework: `rich-click` + `click`
