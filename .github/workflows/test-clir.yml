@@ -1,12 +1,15 @@
 name: Test Clir
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  # Temporarily disabled while migrating to self-hosted runners.
+  # Re-enable these when hosted-runner cost is no longer a concern.
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
+  workflow_dispatch:
 
 permissions:
   contents: read
