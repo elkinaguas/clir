@@ -90,6 +90,22 @@ def copy_config_files():
 
         print(f"Copying {file_name} file to {dir_path}")
 
+def _migrate_config_settings():
+    config_path = _config_file_path()
+    if not config_path.exists():
+        return
+    with open(config_path) as f:
+        config = json.load(f)
+    changed = False
+    for setting in config.get("settings", []):
+        if setting.get("name") == "dafault_current_folder":
+            setting["name"] = "default_current_folder"
+            changed = True
+    if changed:
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=2)
+
+
 def init_config():
     if not check_config():
         dir_path = _env_path()
@@ -107,10 +123,12 @@ def init_config():
         copy_config_files()
 
         migrate_json_to_sqlite()
-    
+
     if not check_config():
         print("Could not set the initial configuration Up.")
         return
+
+    _migrate_config_settings()
     
 
 def verify_clipboard_tool_installation(package: str = ""):

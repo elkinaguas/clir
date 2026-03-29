@@ -43,10 +43,13 @@ def _setup_db(use_local: bool, use_global: bool) -> None:
 
 
 def _find_git_root() -> Path:
+    home = Path.home()
     current = Path.cwd()
     while True:
         if (current / ".git").exists():
             return current
+        if current == home:
+            break
         parent = current.parent
         if parent == current:
             break

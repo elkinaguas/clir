@@ -2,11 +2,22 @@ import os
 import tempfile
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from clir.cli import init, ls, new, settings
 from clir.utils.config import configure_active_db, read_setting, write_setting
 from clir.utils.db import find_local_db, get_active_db_path, set_active_db
+
+
+@pytest.fixture(autouse=True)
+def reset_global_state():
+    """Reset db_file and default_current_folder before every test."""
+    set_active_db(None)
+    write_setting("default_current_folder", False)
+    yield
+    set_active_db(None)
+    write_setting("default_current_folder", False)
 
 
 # --- helpers ---
@@ -145,13 +156,10 @@ def test_configure_active_db_use_global_ignores_local():
 # --- settings ---
 
 def test_settings_read_write():
-    original = read_setting("default_current_folder")
     write_setting("default_current_folder", True)
     assert read_setting("default_current_folder") is True
     write_setting("default_current_folder", False)
     assert read_setting("default_current_folder") is False
-    if original is not None:
-        write_setting("default_current_folder", original)
 
 
 def test_settings_command_shows_active_db():
@@ -166,8 +174,6 @@ def test_settings_command_enables_default_local():
     result = runner.invoke(settings, ['--default-local'])
     assert result.exit_code == 0, result.output
     assert read_setting("default_current_folder") is True
-    # restore
-    write_setting("default_current_folder", False)
 
 
 def test_settings_command_disables_default_local():
@@ -192,8 +198,6 @@ def test_auto_local_when_default_current_folder_enabled():
         configure_active_db()
         assert get_active_db_path() == Path(project_dir) / ".clir" / "clir.db"
     finally:
-        write_setting("default_current_folder", False)
-        set_active_db(None)
         os.chdir(original_dir)
 
 
