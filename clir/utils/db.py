@@ -25,6 +25,41 @@ def _default_db_file() -> Path:
 db_file = None
 
 
+def set_active_db(path) -> None:
+    global db_file
+    db_file = path
+
+
+def get_active_db_path() -> Path:
+    return db_file or _default_db_file()
+
+
+def find_local_db() -> Path:
+    home = Path.home()
+    current = Path.cwd()
+    while True:
+        candidate = current / ".clir" / db_file_name
+        if candidate.exists():
+            return candidate
+        if current == home:
+            break
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
+def create_local_database(directory: Path = None) -> Path:
+    if directory is None:
+        directory = Path.cwd()
+    local_clir_dir = directory / ".clir"
+    local_clir_dir.mkdir(parents=True, exist_ok=True)
+    db_path = local_clir_dir / db_file_name
+    create_database(database_name=db_path)
+    return db_path
+
+
 def _timestamp_now() -> str:
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 

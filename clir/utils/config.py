@@ -1,10 +1,10 @@
 import importlib.resources
+import json
 import shutil
 from pathlib import Path
 
 from clir.utils.core import get_commands
-from clir.utils.db import create_database
-from clir.utils.db import insert_command_db
+from clir.utils.db import create_database, create_local_database, find_local_db, insert_command_db, set_active_db
 
 config_directory = "clir/config/"
 
@@ -118,3 +118,59 @@ def verify_clipboard_tool_installation(package: str = ""):
         return shutil.which(package) is not None
 
     return False
+
+
+def read_setting(name: str):
+    config_path = _config_file_path()
+    if not config_path.exists():
+        return None
+    with open(config_path) as f:
+        config = json.load(f)
+    for setting in config.get("settings", []):
+        if setting["name"] == name:
+            return setting["value"]
+    return None
+
+
+def write_setting(name: str, value) -> bool:
+    config_path = _config_file_path()
+    if not config_path.exists():
+        return False
+    with open(config_path) as f:
+        config = json.load(f)
+    for setting in config.get("settings", []):
+        if setting["name"] == name:
+            setting["value"] = value
+            with open(config_path, "w") as f:
+                json.dump(config, f, indent=2)
+            return True
+    return False
+
+
+def init_local_config(directory: Path = None) -> Path:
+    if directory is None:
+        directory = Path.cwd()
+    return create_local_database(directory)
+
+
+def configure_active_db(local: bool = False, use_global: bool = False) -> None:
+    set_active_db(None)  # reset to global each invocation
+
+    if use_global:
+        return
+
+    if local:
+        db_path = find_local_db()
+        if db_path is None:
+            raise ValueError(
+                "No local clir project found. Run 'clir init' in your project directory first."
+            )
+        set_active_db(db_path)
+        print(f"[local: {db_path.parent}]")
+        return
+
+    if read_setting("default_current_folder"):
+        db_path = find_local_db()
+        if db_path:
+            set_active_db(db_path)
+            print(f"[local: {db_path.parent}]")
