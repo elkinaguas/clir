@@ -2,7 +2,7 @@ PRAGMA user_version = 1;
 CREATE TABLE IF NOT EXISTS commands (
     id TEXT PRIMARY KEY,
     creation_date TEXT NOT NULL,
-    last_modif_date TEST NOT NULL,
+    last_modif_date TEXT NOT NULL,
     command TEXT NOT NULL,
     description TEXT NOT NULL
 );
