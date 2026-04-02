@@ -24,6 +24,42 @@ def _config_file_path() -> Path:
 def _db_file_path() -> Path:
     return _env_path() / "clir.db"
 
+
+def _default_config() -> dict:
+    with importlib.resources.open_text('clir.config', 'clir.conf') as f:
+        return json.load(f)
+
+
+def _backup_invalid_config(config_path: Path) -> None:
+    backup_path = config_path.with_suffix(f"{config_path.suffix}.backup")
+    shutil.copyfile(config_path, backup_path)
+    print(f"Invalid config backed up to {backup_path}")
+
+
+def _repair_config_file(config_path: Path) -> dict:
+    if config_path.exists():
+        _backup_invalid_config(config_path)
+
+    config = _default_config()
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)
+
+    print(f"Recreated config file at {config_path}")
+    return config
+
+
+def _load_config(config_path: Path, repair: bool = False):
+    if not config_path.exists():
+        return None
+
+    try:
+        with open(config_path) as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        if not repair:
+            return None
+        return _repair_config_file(config_path)
+
 def check_config():
     return _db_file_path().exists() and _config_file_path().exists()
 
@@ -92,10 +128,10 @@ def copy_config_files():
 
 def _migrate_config_settings():
     config_path = _config_file_path()
-    if not config_path.exists():
+    config = _load_config(config_path, repair=True)
+    if config is None:
         return
-    with open(config_path) as f:
-        config = json.load(f)
+
     changed = False
     for setting in config.get("settings", []):
         if setting.get("name") == "dafault_current_folder":
@@ -140,10 +176,10 @@ def verify_clipboard_tool_installation(package: str = ""):
 
 def read_setting(name: str):
     config_path = _config_file_path()
-    if not config_path.exists():
+    config = _load_config(config_path, repair=True)
+    if config is None:
         return None
-    with open(config_path) as f:
-        config = json.load(f)
+
     for setting in config.get("settings", []):
         if setting["name"] == name:
             return setting["value"]
@@ -152,10 +188,10 @@ def read_setting(name: str):
 
 def write_setting(name: str, value) -> bool:
     config_path = _config_file_path()
-    if not config_path.exists():
+    config = _load_config(config_path, repair=True)
+    if config is None:
         return False
-    with open(config_path) as f:
-        config = json.load(f)
+
     for setting in config.get("settings", []):
         if setting["name"] == name:
             setting["value"] = value
